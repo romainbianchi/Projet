@@ -19,6 +19,9 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
+	// IMU initialization
+    i2c_start();
+    imu_start();
 
     // motors initialization
 	motors_init();
@@ -26,7 +29,8 @@ int main(void)
 	//start_speed();
 	start_circling();
 
-    /* Infinite loop. */
+
+    // Infinite loop
     while (1) {
 
     }
