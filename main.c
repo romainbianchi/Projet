@@ -19,9 +19,6 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-	// IMU initialization
-    i2c_start();
-    imu_start();
 
     // motors initialization
 	motors_init();
