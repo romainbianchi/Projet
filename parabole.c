@@ -29,9 +29,9 @@ static THD_FUNCTION(Circling, arg){
 	left_motor_set_speed(speed_conversion_cm_to_step(speed));
 	right_motor_set_speed(speed_conversion_cm_to_step(outer_speed(speed, d)));
 
-	chThdSleepMilliseconds(100);
 
 	while(1){
+		chThdSleepMilliseconds(100);
 	}
 }
 
