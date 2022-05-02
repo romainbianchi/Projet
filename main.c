@@ -12,6 +12,7 @@
 #include <camera/po8030.h>
 #include <chprintf.h>
 #include "jump.h"
+#include "parabole.h"
 
 int main(void)
 {
@@ -22,7 +23,8 @@ int main(void)
     // motors initialization
 	motors_init();
 
-	start_speed();
+	//start_speed();
+	start_circling();
 
     /* Infinite loop. */
     while (1) {
@@ -37,3 +39,4 @@ void __stack_chk_fail(void)
 {
     chSysHalt("Stack smashing detected");
 }
+
