@@ -43,13 +43,13 @@ int main(void)
     // motors initialization
 	motors_init();
 
-	//start_speed();
-	start_circling();
+//	start_speed();
+	start_parabola();
 
     // Infinite loop
     while (1) {
     	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-    	show_gravity(imu_values);
+    	//show_gravity(imu_values);
     	chThdSleepMilliseconds(100);
     }
 }

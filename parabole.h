@@ -3,8 +3,9 @@
 
 #define PI 3.14
 
-void start_circling(void);
-float speed_conversion_cm_to_step(uint16_t cm_speed);
-float outer_speed(float inner_speed, float d);
-
+void start_parabola(void);
+float speed_conversion_cm_to_step(float cm_speed);
+float calculate_outer_speed(float roc);
+float calculate_inner_speed(float roc);
+float calculate_roc(float t);
 #endif
