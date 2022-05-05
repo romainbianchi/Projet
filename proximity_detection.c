@@ -22,9 +22,9 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 	while(1){
 
-    	proximity3_value = conv_prox_mm(get_calibrated_prox(2));
+    	proximity3_value = PROX_FACTOR * get_calibrated_prox(2);
 
-    	if(proximity3_value < GOAL_PROX_VALUE){
+    	if(proximity3_value > GOAL_PROX_VALUE){
     		set_body_led(1);
     	}else{
     		set_body_led(0);
@@ -38,7 +38,7 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 // sensor value in mm conversion
 float conv_prox_mm(int error){
-	return 60 - error * PROX_MM_FACTOR;
+	return /*60 -*/ error * PROX_MM_FACTOR;
 }
 
 void start_proximity_detection(void){

@@ -15,16 +15,16 @@
 int16_t pi_regulator(int prox_value, int goal){
 
 	float error = 0;
-	float error_prev = 0;
+	static float error_prev = 0;
 	float prox = 0;
 	static float sum_error = 0;
 	float sub_error = 0;
 
 	//chprintf((BaseSequentialStream *)&SD3, "prox_value␣=␣%f\r\n",conv_prox_mm(prox_value));
 
-	error = conv_prox_mm(prox_value) - goal;
-	chprintf((BaseSequentialStream *)&SD3, "error␣=␣%f\r\n", error);
+	error = (PROX_FACTOR * prox_value) - goal;
 
+	chprintf((BaseSequentialStream *)&SD3, "error␣=␣%f\r\n", error);
 	chprintf((BaseSequentialStream *)&SD3, "prox_value␣=␣%d\r\n", get_calibrated_prox(2));
 
 	if(fabs(error) < ERROR_THRESHOLD){
@@ -42,6 +42,7 @@ int16_t pi_regulator(int prox_value, int goal){
 	sub_error = error - error_prev;
 
 	prox = KP * error + KI * sum_error + KD * sub_error;
+
 	chprintf((BaseSequentialStream *)&SD3, "prox␣=␣%f\r\n",prox);
 	chprintf((BaseSequentialStream *)&SD3, "KP*err␣=␣%f\r\n", KP*error);
 	chprintf((BaseSequentialStream *)&SD3, "KI*sum_err␣=␣%f\r\n", KI*sum_error);
@@ -68,8 +69,8 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
 
-    	right_motor_set_speed(INITIAL_SPEED - prox);
-    	left_motor_set_speed(INITIAL_SPEED);
+    	right_motor_set_speed(INITIAL_SPEED + prox);
+    	left_motor_set_speed(INITIAL_SPEED - prox);
 
     	chThdSleepUntilWindowed(time, time + MS2ST(2));
     }
