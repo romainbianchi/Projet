@@ -20,6 +20,7 @@ extern messagebus_t bus;
 
 extern parameter_namespace_t parameter_root;
 
+
 void show_gravity(imu_msg_t imu_values);
 
 #ifdef __cplusplus
