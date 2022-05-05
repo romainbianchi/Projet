@@ -6,6 +6,5 @@
 
 float conv_prox_mm(int error);
 void start_proximity_detection(void);
-void start_proximity_motors(void);
 
 #endif /* PROXIMITY_DETECTION_H */

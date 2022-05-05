@@ -71,7 +71,7 @@ static THD_FUNCTION(PiRegulator, arg) {
     	right_motor_set_speed(INITIAL_SPEED - prox);
     	left_motor_set_speed(INITIAL_SPEED);
 
-    	chThdSleepUntilWindowed(time, time + MS2ST(10));
+    	chThdSleepUntilWindowed(time, time + MS2ST(2));
     }
 }
 

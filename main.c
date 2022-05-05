@@ -60,7 +60,6 @@ int main(void)
 
 	//start thread movement
 	//start_speed();
-	//start_proximity_motors();
 	start_regulator();
 
 	//start proximity detection
