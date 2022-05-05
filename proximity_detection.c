@@ -22,15 +22,13 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 	while(1){
 
-    	proximity3_value = get_prox(2);
+    	proximity3_value = conv_prox_mm(get_calibrated_prox(2));
 
-    	if(proximity3_value > 150){
+    	if(proximity3_value < GOAL_PROX_VALUE){
     		set_body_led(1);
     	}else{
     		set_body_led(0);
     	}
-
-    	//chprintf((BaseSequentialStream *)&SD3, "value␣=␣%d \n",proximity3_value);
 
 		chThdSleepMilliseconds(100);
 	}
@@ -46,19 +44,19 @@ static THD_FUNCTION(ProximityMotors, arg){
 
 	systime_t time = 0;
 
-	_Bool floor_end = false;
-
-	left_motor_set_speed(INITIAL_SPEED);
-	right_motor_set_speed(INITIAL_SPEED);
-
 	while(1){
 
 		time = chVTGetSystemTime();
 
-
-
-		if(get_prox(1) < 50){
-			floor_end = true;
+		if(get_prox(2) > 210){
+			right_motor_set_speed(INITIAL_SPEED + 200);
+			left_motor_set_speed(INITIAL_SPEED);
+		}else if(get_prox(2) < 190){
+			right_motor_set_speed(INITIAL_SPEED);
+			left_motor_set_speed(INITIAL_SPEED + 200);
+		}else{
+			right_motor_set_speed(INITIAL_SPEED);
+			left_motor_set_speed(INITIAL_SPEED);
 		}
 
 		/*if(get_prox(2) > 100 || get_prox(1) > 100 || get_prox(3) > 100){
@@ -85,6 +83,11 @@ static THD_FUNCTION(ProximityMotors, arg){
 }
 
 //----------------------------------------------------- EXTERNAL FUNCTIONS ------------------------------------------------------------------------------
+
+// sensor value in mm conversion
+float conv_prox_mm(int error){
+	return 60 - error * PROX_MM_FACTOR;
+}
 
 void start_proximity_detection(void){
 	chThdCreateStatic(waProximityDetection, sizeof(waProximityDetection), NORMALPRIO, ProximityDetection, NULL);

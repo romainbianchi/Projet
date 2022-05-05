@@ -11,13 +11,16 @@ extern "C" {
 
 //constants for the differents parts of the project
 #define IMAGE_BUFFER_SIZE		640
-#define INITIAL_SPEED			700 	// [steps]
+#define INITIAL_SPEED			400 	// [steps]
 #define GRAVITY					9.81 	// [m/s^2]
-#define GOAL_PROX_VALUE			150		// Proximity sensor value
-#define KP						1000.0f
-#define KI						3.5f
-#define CORRECTION_COEFF		0.01
-#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
+#define GOAL_PROX_VALUE			50		// mm
+#define KP						5.0f
+#define KI						0.25f
+#define KD						4.0f
+#define MAX_SUM_ERROR 			100
+#define MAX_SUB_ERROR			100
+#define ERROR_THRESHOLD			1
+#define PROX_MM_FACTOR			0.0165
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
