@@ -8,10 +8,10 @@
 
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
 #define GAP_WHEEL 5.3 //[cm]
-#define VYO 7.0f //[cm/s]
-#define VXO 7.0f
-#define G -1.0f //[cm/s^2]
-#define DT 1.0f  // [s]
+#define VYO 4.0f //[cm/s]
+#define VXO 4.0f
+#define G -0.5f //[cm/s^2]
+#define DT 0.2f  // [s]
 
 
 
@@ -24,22 +24,20 @@ static THD_FUNCTION(Parabola, arg){
 	static float t = 0;				//Time, defined in s
 	static float roc = 0;			//Radius of Curvature, defined in cm
 	static float speed = 0; 		//Initial Speed, defined in cm/s
-//	static float alpha = 0;
 
 	while(1){
 
-//		roc = calculate_roc(t);
-//		speed = calculate_norm_speed(t);
-		roc = d_roc(t);
-		speed = d_norm_speed(t);
-		volatile float alpha = d_angle(t);
+		roc = calculate_roc(t);
+		speed = calculate_norm_speed(t);
+//		roc = d_roc(t);
+//		speed = d_norm_speed(t);
+//		volatile float debug = atanf((y(t+DT)-y(t))/(DT))*180/PI;
 //		volatile int v = (int)speed_conversion_cm_to_step(speed);
 
 //		volatile int vout = (int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed));
 //		volatile int vint = (int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed));
 
-
-		if(t<5.0){
+		if(t>-1.0){
 			left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
 			right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
 		} else {
@@ -74,7 +72,7 @@ float calculate_inner_speed(float roc, float v){
 }
 
 float calculate_roc(float t){
-	return (float)pow(pow(((VXO*VXO) + (G*t+VYO)*(G*t+VYO))/abs(2*VXO*G), 1.0/2.0), 3.0);
+	return (float)pow(pow(VXO*VXO + (G*t+VYO)*(G*t+VYO), 1.0/2.0), 3.0)/abs(VXO*G);
 }
 
 float calculate_norm_speed(float t){
@@ -97,7 +95,7 @@ float d2d_x(float t){					// Discrete Second Derivative for x(t) -> a_x(t)
 }
 
 float y(float t){								// y(t)
-	return (G*t)*(G*t)+(VYO*t);
+	return (G*t*t)+(VYO*t);
 }
 
 float d1d_y(float t){					//Discrete First Derivative for y(t) -> v_y(t)

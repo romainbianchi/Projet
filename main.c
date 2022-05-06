@@ -16,6 +16,7 @@
 #include <sensors/imu.h>
 #include <i2c_bus.h>
 #include <chprintf.h>
+#include "astolfix.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -75,9 +76,8 @@ int main(void)
 //	left_motor_set_speed(0);
 //	right_motor_set_speed(0);
 
-//	start_speed();
 	start_parabola();
-
+//	start_astolfi();
     // Infinite loop
     while (1) {
 //    	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
