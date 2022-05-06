@@ -16,8 +16,8 @@ extern "C" {
 #define PROX_FACTOR				0.01f
 #define GOAL_PROX_VALUE			1000.00f * PROX_FACTOR
 #define KP 						10.0f
-#define KI						0.5f
-#define KD						500.0f
+#define KI						0.1f
+#define KD						100.0f
 #define MAX_SUM_ERROR 			200
 #define ERROR_THRESHOLD			3
 #define PROX_MM_FACTOR			0.0165

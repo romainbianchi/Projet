@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <hal.h>
 
-float conv_prox_mm(int error);
 void start_proximity_detection(void);
+bool get_object_detected(void);
 
 #endif /* PROXIMITY_DETECTION_H */

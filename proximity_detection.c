@@ -5,10 +5,13 @@
 #include <chprintf.h>
 #include <leds.h>
 #include <sensors/proximity.h>
+#include <sensors/VL53L0X/VL53L0X.h>
 #include <motors.h>
 #include "main.h"
 
 #include "proximity_detection.h"
+
+static bool object_detected = false;
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
@@ -19,10 +22,24 @@ static THD_FUNCTION(ProximityDetection, arg){
 	(void)arg;
 
 	int proximity3_value = 0;
+	int TOF_value = 0;
+
+	systime_t time = 0;
 
 	while(1){
 
+		time = chVTGetSystemTime();
+
     	proximity3_value = PROX_FACTOR * get_calibrated_prox(2);
+    	TOF_value = VL53L0X_get_dist_mm();
+
+    	if(TOF_value < 120){
+    		set_front_led(1);
+    		object_detected = true;
+    	}else{
+    		set_front_led(0);
+    		object_detected = false;
+    	}
 
     	if(proximity3_value > GOAL_PROX_VALUE){
     		set_body_led(1);
@@ -30,17 +47,15 @@ static THD_FUNCTION(ProximityDetection, arg){
     		set_body_led(0);
     	}
 
-		chThdSleepMilliseconds(100);
 	}
 }
 
 //----------------------------------------------------- EXTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
-// sensor value in mm conversion
-float conv_prox_mm(int error){
-	return /*60 -*/ error * PROX_MM_FACTOR;
-}
-
 void start_proximity_detection(void){
 	chThdCreateStatic(waProximityDetection, sizeof(waProximityDetection), NORMALPRIO, ProximityDetection, NULL);
+}
+
+bool get_object_detected(void){
+	return object_detected;
 }

@@ -11,8 +11,9 @@
 #include <motors.h>
 #include <leds.h>
 #include <sensors/proximity.h>
-#include <camera/po8030.h>
+#include <sensors/VL53L0X/VL53L0X.h>
 #include <chprintf.h>
+
 #include "jump.h"
 #include "proximity_detection.h"
 #include "regulator.h"
@@ -57,6 +58,8 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
+	//TOF start
+	VL53L0X_start();
 
 	//start thread movement
 	//start_speed();
@@ -64,7 +67,6 @@ int main(void)
 
 	//start proximity detection
 	start_proximity_detection();
-
 
     /* Infinite loop. */
     while (1) {
