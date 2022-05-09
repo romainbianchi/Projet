@@ -22,6 +22,7 @@ static THD_FUNCTION(ProximityDetection, arg){
 	(void)arg;
 
 	int proximity3_value = 0;
+	int proximity6_value = 0;
 	int TOF_value = 0;
 
 	systime_t time = 0;
@@ -36,6 +37,11 @@ static THD_FUNCTION(ProximityDetection, arg){
     	if(TOF_value < 120){
     		set_front_led(1);
     		object_detected = true;
+    		/*left_motor_set_speed(300);
+    		right_motor_set_speed(-300);
+    		do{
+    			proximity6_value = PROX_FACTOR * get_calibrated_prox(5);
+    		}while(proximity6_value < GOAL_PROX_VALUE);*/
     	}else{
     		set_front_led(0);
     		object_detected = false;

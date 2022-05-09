@@ -14,9 +14,9 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <chprintf.h>
 
-#include "jump.h"
 #include "proximity_detection.h"
 #include "regulator.h"
+#include "saut_temp.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -62,11 +62,13 @@ int main(void)
 	VL53L0X_start();
 
 	//start thread movement
-	//start_speed();
 	start_regulator();
 
 	//start proximity detection
 	start_proximity_detection();
+
+	//start thread jump
+	//start_thread_saut();
 
     /* Infinite loop. */
     while (1) {

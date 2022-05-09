@@ -5,7 +5,9 @@
 #include <chprintf.h>
 #include <sensors/proximity.h>
 #include <motors.h>
+#include <selector.h>
 
+#include "main.h"
 #include "regulator.h"
 #include "main.h"
 #include "motors.h"
@@ -13,7 +15,6 @@
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
-// pi regulator function
 int16_t pi_regulator(int prox_value, int goal){
 
 	float error = 0;
@@ -59,13 +60,20 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	time = chVTGetSystemTime();
 
-    	if(get_object_detected()){
-    		right_motor_set_speed(0);
-    		left_motor_set_speed(0);
+    	if(get_selector() == SELECT_START){
+
+    		if(get_object_detected()){
+    			right_motor_set_speed(0);
+    			left_motor_set_speed(0);
+    		}else{
+    			prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
+    			right_motor_set_speed(INITIAL_SPEED + prox);
+    			left_motor_set_speed(INITIAL_SPEED - prox);
+    		}
+
     	}else{
-    		prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
-    		right_motor_set_speed(INITIAL_SPEED + prox);
-    		left_motor_set_speed(INITIAL_SPEED - prox);
+    		left_motor_set_speed(0);
+    		right_motor_set_speed(0);
     	}
 
     	chThdSleepUntilWindowed(time, time + MS2ST(2));
