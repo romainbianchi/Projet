@@ -12,11 +12,13 @@
 #include <leds.h>
 #include <sensors/proximity.h>
 #include <sensors/VL53L0X/VL53L0X.h>
+#include <msgbus/messagebus.h>
+#include <sensors/imu.h>
 #include <chprintf.h>
 
 #include "proximity_detection.h"
+#include "TOF_detection.h"
 #include "regulator.h"
-
 
 #include <ch.h>
 #include <hal.h>
@@ -32,8 +34,6 @@
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
-
 
 static void serial_start(void)
 {
@@ -67,28 +67,27 @@ int main(void)
     // motors initialization
 	motors_init();
 
+
 	// proximity sensor initialization
 	proximity_start();
 	calibrate_ir();
 
-	//TOF start
+	// TOF start
 	VL53L0X_start();
+	chThdSleepMilliseconds(1000);
 
 	//start proximity detection
 	start_proximity_detection();
 
-	// parabola thread initialization
-//	start_parabola();
-
-	// proximity sensor initialization
-	proximity_start();
-	calibrate_ir();
-
-	//TOF start
-	VL53L0X_start();
+	// start TOF detection
+	start_tof_detection();
 
 	//start thread movement
 	start_regulator();
+
+
+    /* Infinite loop. */
+    while (1) {
 
     start_gravity();
 
