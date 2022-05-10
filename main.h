@@ -19,6 +19,7 @@ extern "C" {
 #define MAX_SUM_ERROR 			300
 #define ERROR_THRESHOLD			1
 #define SELECT_START				8
+#define PI 						3.1415926536f
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;

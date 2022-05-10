@@ -16,7 +16,7 @@
 
 #include "proximity_detection.h"
 #include "regulator.h"
-#include "saut_temp.h"
+
 
 #include <ch.h>
 #include <hal.h>
@@ -26,10 +26,14 @@
 #include <i2c_bus.h>
 #include "parabole.h"
 
+#include <sensors/imu.h>
+#include "gravity_detection.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
+
+
 
 static void serial_start(void)
 {
@@ -49,14 +53,32 @@ int main(void)
     chSysInit();
     mpu_init();
     serial_start();
+    i2c_start();
+    imu_start();
+
 
     /** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+    chThdSleepMilliseconds(2000);
+    calibrate_gyro();
+    calibrate_acc();
+
     // motors initialization
 	motors_init();
+
+	// proximity sensor initialization
+	proximity_start();
+	calibrate_ir();
+
+	//TOF start
+	VL53L0X_start();
+
+	//start proximity detection
+	start_proximity_detection();
+
 	// parabola thread initialization
-	start_parabola();
+//	start_parabola();
 
 	// proximity sensor initialization
 	proximity_start();
@@ -68,14 +90,13 @@ int main(void)
 	//start thread movement
 	start_regulator();
 
-	//start proximity detection
-	start_proximity_detection();
-
-	//start thread jump
-	//start_thread_saut();
+    start_gravity();
 
     /* Infinite loop. */
     while (1) {
+//    	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+//    	show_gravity(imu_values);
+//    	chThdSleepMilliseconds(100);
     }
 }
 

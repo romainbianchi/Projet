@@ -11,9 +11,9 @@ GLOBAL_PATH = ../../lib/e-puck2_main-processor
 #Source files to include
 CSRC += ./main.c \
 			./parabole.c\
-			
-			./proximity_detection.c \
+			./proximity_detection.c\
 			./regulator.c \
+			./gravity_detection.c\
 
 #Header folders to include
 INCDIR += 
