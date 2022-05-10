@@ -12,6 +12,10 @@
 #define VXO 4.0f
 #define G -0.5f //[cm/s^2]
 #define DT 0.2f  // [s]
+#define PARABOLA_ROTATION	0
+#define PARABOLA_TRAJECTORY	1
+
+static uint8_t parabola_mode = PARABOLA_ROTATION;
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
 
@@ -63,4 +67,24 @@ void start_parabola(void){
 	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO, Parabola, NULL);
 }
 
+void parabola(void){
+	static float t = 0;
+	static float roc = 0;
+	static float speed = 0;
 
+	// rotation
+	if(function_mode == PARABOLA_ROTATION){
+		right_motor_set_speed(INITIAL_SPEED);
+		left_motor_set_speed(-INITIAL_SPEED);
+	}
+
+	// parabola
+	if(function_mode == PARABOLA_TRAJECTORY){
+		roc = calculate_roc(t);
+		speed = calculate_norm_speed(t);
+		left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
+		right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
+	}
+
+	t=t+DT;
+}

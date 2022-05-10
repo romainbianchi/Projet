@@ -12,11 +12,13 @@
 #include <leds.h>
 #include <sensors/proximity.h>
 #include <sensors/VL53L0X/VL53L0X.h>
+#include <msgbus/messagebus.h>
+#include <sensors/imu.h>
 #include <chprintf.h>
 
 #include "proximity_detection.h"
+#include "TOF_detection.h"
 #include "regulator.h"
-#include "saut_temp.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -52,30 +54,39 @@ int main(void)
 
     /** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
+//    messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+//    imu_msg_t imu_values;
 
     // motors initialization
 	motors_init();
-	// parabola thread initialization
-	start_parabola();
+
+	//gyro calibration
+    chThdSleepMilliseconds(2000);
+    calibrate_gyro();
+    calibrate_acc();
+
 
 	// proximity sensor initialization
 	proximity_start();
 	calibrate_ir();
 
-	//TOF start
+	// TOF start
 	VL53L0X_start();
-
-	//start thread movement
-	start_regulator();
+	chThdSleepMilliseconds(1000);
 
 	//start proximity detection
 	start_proximity_detection();
 
-	//start thread jump
-	//start_thread_saut();
+	// start TOF detection
+	start_tof_detection();
+
+	//start thread movement
+	start_regulator();
+
 
     /* Infinite loop. */
     while (1) {
+
     }
 }
 

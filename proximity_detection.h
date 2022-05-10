@@ -5,6 +5,6 @@
 #include <hal.h>
 
 void start_proximity_detection(void);
-bool get_object_detected(void);
+bool get_floor_detected(void);
 
 #endif /* PROXIMITY_DETECTION_H */

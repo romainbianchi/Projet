@@ -12,6 +12,8 @@
 #include "main.h"
 #include "motors.h"
 #include "proximity_detection.h"
+#include "TOF_detection.h"
+
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
@@ -62,9 +64,20 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	if(get_selector() == SELECT_START){
 
-    		if(get_object_detected()){
-    			right_motor_set_speed(0);
+    		//chprintf((BaseSequentialStream *)&SD3, "mode1␣=␣%d\r\n",function_mode);
+
+    		if(get_object_detected() && function_mode == NORMAL_FUNCTION_MODE){
+    			function_mode = PARABOLA_FUNCTION_MODE;
+    		}
+    		if(!get_object_detected() && function_mode != PARABOLA_FUNCTION_MODE){
+    			function_mode = NORMAL_FUNCTION_MODE;
+    		}
+    		//chprintf((BaseSequentialStream *)&SD3, "mode2␣=␣%d\r\r\n",function_mode);
+
+    		if(function_mode == PARABOLA_FUNCTION_MODE){
+    			//parabola();
     			left_motor_set_speed(0);
+    			right_motor_set_speed(0);
     		}else{
     			prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
     			right_motor_set_speed(INITIAL_SPEED + prox);
@@ -84,4 +97,12 @@ static THD_FUNCTION(PiRegulator, arg) {
 
 void start_regulator(void){
 	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+}
+
+void set_function_mode(uint8_t mode){
+	function_mode = mode;
+}
+
+uint8_t get_function_mode(void){
+	return function_mode;
 }
