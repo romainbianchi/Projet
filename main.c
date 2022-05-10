@@ -85,10 +85,6 @@ int main(void)
 	//start thread movement
 	start_regulator();
 
-
-    /* Infinite loop. */
-    while (1) {
-
     start_gravity();
 
     /* Infinite loop. */
