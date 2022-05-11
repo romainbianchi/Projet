@@ -12,7 +12,7 @@
 #define GAP_WHEEL 5.3 //[cm]
 #define VYO 10.0f //[cm/s]
 #define VXO 3.0f
-#define G -1.0f //[cm/s^2]
+#define G -1.5f //[cm/s^2]
 #define DT 0.02f  // [s]
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
@@ -67,12 +67,12 @@ static THD_FUNCTION(Parabola, arg){
 //------------------------------- EXTERNAL FUNCTIONS -------------------------------
 
 void start_parabola(void){
-	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO+1, Parabola, NULL);
+	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO+2, Parabola, NULL);
 }
 
 void rotation(void){
-	left_motor_set_speed(-150);
-	right_motor_set_speed(150);
+	left_motor_set_speed(-ROTATION_SPEED);
+	right_motor_set_speed(ROTATION_SPEED);
 }
 
 void stop_rotation(void){

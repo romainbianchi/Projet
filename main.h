@@ -27,14 +27,16 @@ extern "C" {
 #define GOAL_TOF_VALUE			120u					// [mm]
 #define KP 						10.0f
 #define KI						0.1f
-#define KD						100.0f
+#define KD						1500.0f
 #define MAX_SUM_ERROR 			300
 #define ERROR_THRESHOLD			1
 #define SELECT_START			8
 #define DEG_PER_STEP			0.141f
-#define ANGLE_PARABOLA			20.0f					// [deg]
+#define ANGLE_PARABOLA			63.3f					// [deg]
 #define ANGLE_HORIZONTAL		0
 #define ANGLE_THRESHOLD			1						// [deg]
+#define ROTATION_SPEED			150
+
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;

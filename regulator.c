@@ -90,11 +90,11 @@ static THD_FUNCTION(PiRegulator, arg) {
     		if(function_mode == ROTATION_FUNCTION_MODE){
     			rotation();
     		}
-    		if(function_mode == PARABOLA_FUNCTION_MODE){
-//    			parabola();
-    		left_motor_set_speed(0);
-    		right_motor_set_speed(0);
-			}
+//    		if(function_mode == PARABOLA_FUNCTION_MODE){
+////    			parabola();
+//    		left_motor_set_speed(0);
+//    		right_motor_set_speed(0);
+//			}
     		if(function_mode == LANDING_FUNCTION_MODE){
     			rotation();
     		}
@@ -117,7 +117,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
 
 void start_regulator(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
 }
 
 void set_function_mode(uint8_t mode){

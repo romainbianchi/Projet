@@ -93,7 +93,7 @@ int main(void)
 	//start thread movement
 	start_regulator();
 
-    //start_parabola();
+    start_parabola();
 
     /* Infinite loop. */
     while (1) {
