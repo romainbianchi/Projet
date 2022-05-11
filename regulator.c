@@ -9,11 +9,13 @@
 
 #include "main.h"
 #include "regulator.h"
-#include "main.h"
 #include "motors.h"
 #include "proximity_detection.h"
 #include "TOF_detection.h"
+#include "gravity_detection.h"
+#include "parabole.h"
 
+static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
@@ -62,27 +64,46 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	time = chVTGetSystemTime();
 
+//    	chprintf((BaseSequentialStream *)&SD3, "time␣=␣%dus\n",time);
+
     	if(get_selector() == SELECT_START){
 
-    		//chprintf((BaseSequentialStream *)&SD3, "mode1␣=␣%d\r\n",function_mode);
+//    		if(get_object_detected() && function_mode == NORMAL_FUNCTION_MODE){
+//    			function_mode = ROTATION_FUNCTION_MODE;
+//    		}
+//
+//    		if(get_angle() > ANGLE_PARABOLA - ANGLE_THRESHOLD && get_angle() < ANGLE_PARABOLA + ANGLE_THRESHOLD && function_mode == ROTATION_FUNCTION_MODE){
+//    			function_mode = PARABOLA_FUNCTION_MODE;
+//    		}
+//
+//    		if(get_floor_detected() && function_mode == PARABOLA_FUNCTION_MODE){
+//    			function_mode = LANDING_FUNCTION_MODE;
+//    		}
+//    		if(get_angle() > ANGLE_HORIZONTAL - 3 && get_angle() < ANGLE_HORIZONTAL + 3 && function_mode == LANDING_FUNCTION_MODE){
+//    			function_mode = NORMAL_FUNCTION_MODE;
+//    			set_floor_detected(false);
+//    		}
 
-    		if(get_object_detected() && function_mode == NORMAL_FUNCTION_MODE){
-    			function_mode = PARABOLA_FUNCTION_MODE;
-    		}
-    		if(!get_object_detected() && function_mode != PARABOLA_FUNCTION_MODE){
-    			function_mode = NORMAL_FUNCTION_MODE;
-    		}
-    		//chprintf((BaseSequentialStream *)&SD3, "mode2␣=␣%d\r\r\n",function_mode);
 
+
+
+    		if(function_mode == ROTATION_FUNCTION_MODE){
+    			rotation();
+    		}
     		if(function_mode == PARABOLA_FUNCTION_MODE){
-    			//parabola();
-    			left_motor_set_speed(0);
-    			right_motor_set_speed(0);
-    		}else{
+//    			parabola();
+    		left_motor_set_speed(0);
+    		right_motor_set_speed(0);
+			}
+    		if(function_mode == LANDING_FUNCTION_MODE){
+    			rotation();
+    		}
+    		if(function_mode == NORMAL_FUNCTION_MODE){
     			prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
     			right_motor_set_speed(INITIAL_SPEED + prox);
     			left_motor_set_speed(INITIAL_SPEED - prox);
     		}
+
 
     	}else{
     		left_motor_set_speed(0);

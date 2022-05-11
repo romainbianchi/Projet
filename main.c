@@ -19,6 +19,7 @@
 #include "proximity_detection.h"
 #include "TOF_detection.h"
 #include "regulator.h"
+#include "parabole.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -60,13 +61,17 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-    chThdSleepMilliseconds(2000);
-    calibrate_gyro();
-    calibrate_acc();
+
 
     // motors initialization
 	motors_init();
 
+	// acc calibration
+	rotation();
+    chThdSleepMilliseconds(2000);
+    calibrate_acc();
+    chThdSleepMilliseconds(2000);
+    stop_rotation();
 
 	// proximity sensor initialization
 	proximity_start();
@@ -74,18 +79,21 @@ int main(void)
 
 	// TOF start
 	VL53L0X_start();
-	chThdSleepMilliseconds(1000);
+	chThdSleepMilliseconds(500);
 
 	//start proximity detection
-	start_proximity_detection();
+	//start_proximity_detection();
 
 	// start TOF detection
 	start_tof_detection();
 
+	// start gravity
+	start_gravity();
+
 	//start thread movement
 	start_regulator();
 
-    start_gravity();
+    //start_parabola();
 
     /* Infinite loop. */
     while (1) {

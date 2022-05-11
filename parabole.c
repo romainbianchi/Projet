@@ -5,17 +5,15 @@
 #include <motors.h>
 #include <main.h>
 #include "parabole.h"
+#include "regulator.h"
+#include "selector.h"
 
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
 #define GAP_WHEEL 5.3 //[cm]
-#define VYO 4.0f //[cm/s]
-#define VXO 4.0f
-#define G -0.5f //[cm/s^2]
-#define DT 0.2f  // [s]
-#define PARABOLA_ROTATION	0
-#define PARABOLA_TRAJECTORY	1
-
-static uint8_t parabola_mode = PARABOLA_ROTATION;
+#define VYO 10.0f //[cm/s]
+#define VXO 3.0f
+#define G -1.0f //[cm/s^2]
+#define DT 0.02f  // [s]
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
 
@@ -38,7 +36,7 @@ float calculate_norm_speed(float t){
 	return sqrt((G*t)*(G*t)+(2*G*VYO*t)+VXO*VXO+VYO*VYO);
 }
 
-static THD_WORKING_AREA(waParabola, 128);
+static THD_WORKING_AREA(waParabola, 256);
 static THD_FUNCTION(Parabola, arg){
 
 	chRegSetThreadName(__FUNCTION__);
@@ -50,13 +48,18 @@ static THD_FUNCTION(Parabola, arg){
 
 	while(1){
 
-		roc = calculate_roc(t);
-		speed = calculate_norm_speed(t);
+		if(get_selector() == SELECT_START){
+			if(get_function_mode() == PARABOLA_FUNCTION_MODE){
+				roc = calculate_roc(t);
+				speed = calculate_norm_speed(t);
 
-		left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
-		right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
+				left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
+				right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
 
-		t=t+DT;
+				t=t+DT;
+			}
+		}
+
 		chThdSleepMilliseconds(DT*1000);
 	}
 }
@@ -64,7 +67,17 @@ static THD_FUNCTION(Parabola, arg){
 //------------------------------- EXTERNAL FUNCTIONS -------------------------------
 
 void start_parabola(void){
-	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO, Parabola, NULL);
+	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO+1, Parabola, NULL);
+}
+
+void rotation(void){
+	left_motor_set_speed(-150);
+	right_motor_set_speed(150);
+}
+
+void stop_rotation(void){
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
 }
 
 void parabola(void){
@@ -72,19 +85,13 @@ void parabola(void){
 	static float roc = 0;
 	static float speed = 0;
 
-	// rotation
-	if(function_mode == PARABOLA_ROTATION){
-		right_motor_set_speed(INITIAL_SPEED);
-		left_motor_set_speed(-INITIAL_SPEED);
-	}
+	roc = calculate_roc(t);
+	speed = calculate_norm_speed(t);
+	left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
+	right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
 
-	// parabola
-	if(function_mode == PARABOLA_TRAJECTORY){
-		roc = calculate_roc(t);
-		speed = calculate_norm_speed(t);
-		left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
-		right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
-	}
 
 	t=t+DT;
 }
+
+
