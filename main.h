@@ -29,6 +29,7 @@ extern "C" {
 #define ERROR_THRESHOLD			1
 #define SELECT_START			8
 #define DEG_PER_STEP			0.141f
+#define ANGLE_AT_NINETY			919.91f
 
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 
