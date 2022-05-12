@@ -110,7 +110,8 @@ static THD_FUNCTION(PiRegulator, arg) {
     		right_motor_set_speed(0);
     	}
 
-    	chThdSleepUntilWindowed(time, time + MS2ST(2));
+    	chThdSleepMilliseconds(10);
+    	//chThdSleepUntilWindowed(time, time + MS2ST(2));
     }
 }
 

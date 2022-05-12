@@ -76,7 +76,7 @@ static THD_FUNCTION(Gravity, arg){
 //    		if(angle_from_horizontal > ANGLE_PARABOLA - ANGLE_THRESHOLD && angle_from_horizontal < ANGLE_PARABOLA + ANGLE_THRESHOLD && get_function_mode() == ROTATION_FUNCTION_MODE){
 //    			set_function_mode(PARABOLA_FUNCTION_MODE);
 //    		}
-			if(get_angle() > 1.8 && get_angle() < 2.14 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+			if(get_angle() > 2.94 && get_angle() < 3.81 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
 				set_function_mode(PARABOLA_FUNCTION_MODE);
 			}
 

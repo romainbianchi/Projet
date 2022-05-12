@@ -70,6 +70,7 @@ int main(void)
     chThdSleepMilliseconds(2000);
     calibrate_acc();
 
+
     // end of calibration signal
     set_body_led(1);
 
