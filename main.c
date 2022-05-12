@@ -116,7 +116,7 @@ int main(void)
     		if(rot){
 				right_motor_set_speed(200);
 				left_motor_set_speed(-200);
-				if(get_angle() > 0.9 && get_angle() < 1.1 && get_quadrant() == 1){
+				if(get_angle() >  1.96 && get_angle() < 2.35 && get_quadrant() == 1){
 					right_motor_set_speed(0);
 					left_motor_set_speed(0);
 					set_body_led(1);
