@@ -67,11 +67,11 @@ int main(void)
 	motors_init();
 
 	// acc calibration
-	rotation();
     chThdSleepMilliseconds(2000);
     calibrate_acc();
-    chThdSleepMilliseconds(2000);
-    stop_rotation();
+
+    // end of calibration signal
+    set_body_led(1);
 
 	// proximity sensor initialization
 	proximity_start();
