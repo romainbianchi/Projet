@@ -69,10 +69,13 @@ int main(void)
 	// acc calibration
     chThdSleepMilliseconds(2000);
     calibrate_acc();
-
-
-    // end of calibration signal
+    // end of initialization
     set_body_led(1);
+    chThdSleepMilliseconds(1000);
+    set_body_led(0);
+
+
+
 
 	// proximity sensor initialization
 	proximity_start();
@@ -94,7 +97,7 @@ int main(void)
 	//start thread movement
 	start_regulator();
 
-    start_parabola();
+    //start_parabola();
 
     /* Infinite loop. */
     while (1) {

@@ -8,10 +8,12 @@
 #include <motors.h>
 #include <selector.h>
 #include <chprintf.h>
+#include <leds.h>
 
 #include "regulator.h"
 #include "TOF_detection.h"
 #include "gravity_detection.h"
+#include "parabole.h"
 
 static float angle_from_horizontal = 0; // in °
 static uint8_t quadrant = 0; // dans quel quadrant pointe le robot
@@ -62,6 +64,10 @@ static THD_FUNCTION(Gravity, arg){
 
     systime_t time = 0;
 
+    static uint8_t count = 0;
+    static float angle_sum = 0;
+    float angle_moy = 0;
+
 	while(1){
 
 		time = chVTGetSystemTime();
@@ -69,24 +75,47 @@ static THD_FUNCTION(Gravity, arg){
     	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
     	determine_angle(imu_values);
 
-    	//chprintf((BaseSequentialStream *)&SD3, "angle␣=␣%f\n",angle_from_horizontal);
-
     	//MODE CONDITIONS
     	if(get_selector() ==  SELECT_START){
-//    		if(angle_from_horizontal > ANGLE_PARABOLA - ANGLE_THRESHOLD && angle_from_horizontal < ANGLE_PARABOLA + ANGLE_THRESHOLD && get_function_mode() == ROTATION_FUNCTION_MODE){
-//    			set_function_mode(PARABOLA_FUNCTION_MODE);
-//    		}
-			if(get_angle() > 2.94 && get_angle() < 3.81 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
-				set_function_mode(PARABOLA_FUNCTION_MODE);
+
+			if(get_angle() > 1.73 && get_angle() < 2.74 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+				stop_rotation();
+				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
+				chThdSleepMilliseconds(100);
 			}
 
-    		if(get_angle() > -0.02 && get_angle() < 0.02 && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
+			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
+				set_led(LED3, 1);
+				//stop_rotation();
+				angle_sum += angle_from_horizontal;
+				if(count == 20){
+					set_led(LED3, 0);
+					angle_moy = angle_sum/20.0;
+					angle_sum = 0;
+					count = 0;
+					if(angle_moy > 1.73 && angle_moy < 2.74 && get_quadrant() == 1){
+						set_function_mode(PARABOLA_FUNCTION_MODE);
+					}else{
+						set_function_mode(ROTATION_FUNCTION_MODE);
+					}
+				}
+				count++;
+			}
+
+
+//			if(get_angle() > 1.73 && get_angle() < 2.14 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+//				set_function_mode(PARABOLA_FUNCTION_MODE);
+//				left_motor_set_speed(0);
+//				right_motor_set_speed(0);
+//			}
+
+    		if(get_angle() > -0.08 && get_angle() < 0.08 && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     			set_floor_detected(false);
     		}
-    	}
 
-    	chThdSleepUntilWindowed(time, time + MS2ST(10));
+    	}
+    	chThdSleepMilliseconds(5);
 	}
 }
 

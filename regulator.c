@@ -6,6 +6,7 @@
 #include <sensors/proximity.h>
 #include <motors.h>
 #include <selector.h>
+#include <sensors/imu.h>
 
 #include "main.h"
 #include "regulator.h"
@@ -64,37 +65,23 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	time = chVTGetSystemTime();
 
-//    	chprintf((BaseSequentialStream *)&SD3, "time␣=␣%dus\n",time);
+		//chprintf((BaseSequentialStream *)&SD3, "angle␣=␣%f\r\n",get_angle());
 
     	if(get_selector() == SELECT_START){
-
-//    		if(get_object_detected() && function_mode == NORMAL_FUNCTION_MODE){
-//    			function_mode = ROTATION_FUNCTION_MODE;
-//    		}
-//
-//    		if(get_angle() > ANGLE_PARABOLA - ANGLE_THRESHOLD && get_angle() < ANGLE_PARABOLA + ANGLE_THRESHOLD && function_mode == ROTATION_FUNCTION_MODE){
-//    			function_mode = PARABOLA_FUNCTION_MODE;
-//    		}
-//
-//    		if(get_floor_detected() && function_mode == PARABOLA_FUNCTION_MODE){
-//    			function_mode = LANDING_FUNCTION_MODE;
-//    		}
-//    		if(get_angle() > ANGLE_HORIZONTAL - 3 && get_angle() < ANGLE_HORIZONTAL + 3 && function_mode == LANDING_FUNCTION_MODE){
-//    			function_mode = NORMAL_FUNCTION_MODE;
-//    			set_floor_detected(false);
-//    		}
-
-
-
 
     		if(function_mode == ROTATION_FUNCTION_MODE){
     			rotation();
     		}
-//    		if(function_mode == PARABOLA_FUNCTION_MODE){
-////    			parabola();
-//    		left_motor_set_speed(0);
-//    		right_motor_set_speed(0);
-//			}
+    		if(function_mode == INV_ROTATION_FUNCTION_MODE){
+    			left_motor_set_speed(ROTATION_SPEED);
+    			right_motor_set_speed(-ROTATION_SPEED);
+    		}
+    		if(function_mode == PARABOLA_FUNCTION_MODE){
+    			parabola();
+//    			left_motor_set_speed(0);
+//    			right_motor_set_speed(0);
+    			//chprintf((BaseSequentialStream *)&SD3, "anglePARA␣=␣%f\r\n",get_angle());
+			}
     		if(function_mode == LANDING_FUNCTION_MODE){
     			rotation();
     		}
@@ -110,8 +97,8 @@ static THD_FUNCTION(PiRegulator, arg) {
     		right_motor_set_speed(0);
     	}
 
-    	chThdSleepMilliseconds(10);
-    	//chThdSleepUntilWindowed(time, time + MS2ST(2));
+//    	chThdSleepMilliseconds(10);
+    	chThdSleepUntilWindowed(time, time + MS2ST(20));
     }
 }
 

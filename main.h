@@ -10,11 +10,14 @@ extern "C" {
 #include "parameter/parameter.h"
 
 //constants for the differents parts of the project
-#define NORMAL_FUNCTION_MODE	0
-#define PARABOLA_FUNCTION_MODE	1
-#define ROTATION_FUNCTION_MODE	2
-#define LANDING_FUNCTION_MODE	3
-#define FALL_FUNCTION_MODE		4
+#define NORMAL_FUNCTION_MODE			0
+#define PARABOLA_FUNCTION_MODE			1
+#define ROTATION_FUNCTION_MODE			2
+#define INV_ROTATION_FUNCTION_MODE		3
+#define LANDING_FUNCTION_MODE			4
+#define FALL_FUNCTION_MODE				5
+#define CONTROL_ANGLE_FUNCTION_MODE		6
+
 #define PI						3.1415926536f
 #define WHEEL_DISTANCE      	5.35f  					// [cm]
 #define WHEEL_PERIMETER			13						// [cm]
@@ -23,13 +26,15 @@ extern "C" {
 #define INITIAL_SPEED			600 					// [steps]
 #define PROX_FACTOR				0.01f
 #define GOAL_PROX_VALUE			1000.00f * PROX_FACTOR
-#define GOAL_FLOOR_DETECT		50u
+#define GOAL_FLOOR_DETECT		45u
 #define GOAL_TOF_VALUE			120u					// [mm]
-#define KP 						10.0f
+
+#define KP 						20.0f
 #define KI						0.1f
-#define KD						1500.0f
+#define KD						400.0f
 #define MAX_SUM_ERROR 			300
 #define ERROR_THRESHOLD			1
+
 #define SELECT_START			8
 #define DEG_PER_STEP			0.141f
 #define ANGLE_PARABOLA			63.3f					// [deg]

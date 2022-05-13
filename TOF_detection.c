@@ -38,10 +38,8 @@ static THD_FUNCTION(TofDetection, arg){
 
 		if(get_function_mode() == NORMAL_FUNCTION_MODE){
 			if(TOF_value < GOAL_TOF_VALUE){
-				set_front_led(1);
 				object_detected = true;
 			}else{
-				set_front_led(0);
 				object_detected = false;
 			}
 		}
@@ -56,7 +54,8 @@ static THD_FUNCTION(TofDetection, arg){
 			}
 		}
 
-		chThdSleepUntilWindowed(time, time + MS2ST(5));
+		chThdSleepMilliseconds(5);
+		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 
 }
