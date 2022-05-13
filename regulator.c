@@ -7,6 +7,7 @@
 #include <motors.h>
 #include <selector.h>
 #include <sensors/imu.h>
+#include <leds.h>
 
 #include "main.h"
 #include "regulator.h"
@@ -16,10 +17,52 @@
 #include "gravity_detection.h"
 #include "parabole.h"
 
+#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
+#define GAP_WHEEL 5.3 //[cm]
+#define VYO 10.0f //[cm/s]
+#define VXO 3.0f
+#define G -2.0f //[cm/s^2]
+#define DT 0.02f  // [s]
+
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
+static float time_parabola = 0;
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
+//PARABOLE
+float speed_conversion_cm_to_step(float cm_speed){
+	return cm_speed * CONSTANT_CONVERSION_SPEED_CM_TO_STEP;
+}
+
+float calculate_outer_speed(float roc, float v){
+	return v*(1+(GAP_WHEEL/(2*roc)));
+}
+float calculate_inner_speed(float roc, float v){
+	return v*(1-(GAP_WHEEL/(2*roc)));
+}
+
+float calculate_roc(float t){
+	return (float)pow(pow(VXO*VXO + (G*t+VYO)*(G*t+VYO), 1.0/2.0), 3.0)/abs(VXO*G);
+}
+
+float calculate_norm_speed(float t){
+	return sqrt((G*t)*(G*t)+(2*G*VYO*t)+VXO*VXO+VYO*VYO);
+}
+
+void parabola(){
+	static float roc = 0;
+	static float speed = 0;
+
+	roc = calculate_roc(time_parabola);
+	speed = calculate_norm_speed(time_parabola);
+	left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
+	right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
+
+
+	time_parabola = time_parabola+DT;
+}
+
+//REGULATOR
 int16_t pi_regulator(int prox_value, int goal){
 
 	float error = 0;
@@ -51,6 +94,7 @@ int16_t pi_regulator(int prox_value, int goal){
 	return (int16_t)prox;
 }
 
+//THREAD
 static THD_WORKING_AREA(waPiRegulator, 256);
 static THD_FUNCTION(PiRegulator, arg) {
 
@@ -77,12 +121,10 @@ static THD_FUNCTION(PiRegulator, arg) {
     			right_motor_set_speed(-ROTATION_SPEED);
     		}
     		if(function_mode == PARABOLA_FUNCTION_MODE){
-    			parabola();
-//    			left_motor_set_speed(0);
-//    			right_motor_set_speed(0);
-    			//chprintf((BaseSequentialStream *)&SD3, "anglePARA␣=␣%f\r\n",get_angle());
+    			parabola(time_parabola);
 			}
     		if(function_mode == LANDING_FUNCTION_MODE){
+    			time_parabola = 0;
     			rotation();
     		}
     		if(function_mode == NORMAL_FUNCTION_MODE){
@@ -90,7 +132,9 @@ static THD_FUNCTION(PiRegulator, arg) {
     			right_motor_set_speed(INITIAL_SPEED + prox);
     			left_motor_set_speed(INITIAL_SPEED - prox);
     		}
-
+    		if(function_mode == FALL_FUNCTION_MODE){
+    			set_body_led(1);
+    		}
 
     	}else{
     		left_motor_set_speed(0);

@@ -54,7 +54,7 @@ static THD_FUNCTION(TofDetection, arg){
 			}
 		}
 
-		chThdSleepMilliseconds(5);
+		chThdSleepMilliseconds(3);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 

@@ -86,7 +86,7 @@ int main(void)
 	chThdSleepMilliseconds(500);
 
 	//start proximity detection
-	//start_proximity_detection();
+	start_proximity_detection();
 
 	// start TOF detection
 	start_tof_detection();

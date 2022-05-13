@@ -115,7 +115,7 @@ static THD_FUNCTION(Gravity, arg){
     		}
 
     	}
-    	chThdSleepMilliseconds(5);
+    	chThdSleepMilliseconds(4);
 	}
 }
 
