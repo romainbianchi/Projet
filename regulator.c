@@ -19,13 +19,14 @@
 
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
 #define GAP_WHEEL 5.3 //[cm]
-#define VYO 10.0f //[cm/s]
-#define VXO 3.0f
-#define G -2.0f //[cm/s^2]
+#define	JUMP_VYO 12.0f //[cm/s]
+#define VXO 6.0f
+#define G -4.0f //[cm/s^2]
 #define DT 0.02f  // [s]
 
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 static float time_parabola = 0;
+static float vyo = 0;
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
@@ -41,25 +42,33 @@ float calculate_inner_speed(float roc, float v){
 	return v*(1-(GAP_WHEEL/(2*roc)));
 }
 
-float calculate_roc(float t){
-	return (float)pow(pow(VXO*VXO + (G*t+VYO)*(G*t+VYO), 1.0/2.0), 3.0)/abs(VXO*G);
+float calculate_roc(float t, float vyo){
+	return (float)pow(pow(VXO*VXO + (G*t+vyo)*(G*t+vyo), 1.0/2.0), 3.0)/abs(VXO*G);
 }
 
-float calculate_norm_speed(float t){
-	return sqrt((G*t)*(G*t)+(2*G*VYO*t)+VXO*VXO+VYO*VYO);
+float calculate_norm_speed(float t, float vyo){
+	return sqrt((G*t)*(G*t)+(2*G*vyo*t)+VXO*VXO+vyo*vyo);
 }
 
-void parabola(){
+void parabola(void){
 	static float roc = 0;
 	static float speed = 0;
 
-	roc = calculate_roc(time_parabola);
-	speed = calculate_norm_speed(time_parabola);
+	roc = calculate_roc(time_parabola, vyo);
+	speed = calculate_norm_speed(time_parabola, vyo);
 	left_motor_set_speed((int)speed_conversion_cm_to_step(calculate_outer_speed(roc, speed)));
 	right_motor_set_speed((int)speed_conversion_cm_to_step(calculate_inner_speed(roc, speed)));
 
 
 	time_parabola = time_parabola+DT;
+}
+
+bool detect_fall(void){
+	if(get_calibrated_prox(1) < 10){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 //REGULATOR
@@ -105,6 +114,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     int16_t prox = 0;
 
+
     while(1){
 
     	time = chVTGetSystemTime();
@@ -121,19 +131,25 @@ static THD_FUNCTION(PiRegulator, arg) {
     			right_motor_set_speed(-ROTATION_SPEED);
     		}
     		if(function_mode == PARABOLA_FUNCTION_MODE){
-    			parabola(time_parabola);
+    			vyo = JUMP_VYO;
+    			parabola();
 			}
     		if(function_mode == LANDING_FUNCTION_MODE){
     			time_parabola = 0;
     			rotation();
     		}
     		if(function_mode == NORMAL_FUNCTION_MODE){
-    			prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
-    			right_motor_set_speed(INITIAL_SPEED + prox);
-    			left_motor_set_speed(INITIAL_SPEED - prox);
+    			if(detect_fall()){
+    				set_function_mode(FALL_FUNCTION_MODE);
+    			}else{
+					prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
+					right_motor_set_speed(INITIAL_SPEED + prox);
+					left_motor_set_speed(INITIAL_SPEED - prox);
+				}
     		}
     		if(function_mode == FALL_FUNCTION_MODE){
-    			set_body_led(1);
+    			vyo = 0;
+    			parabola();
     		}
 
     	}else{
@@ -149,7 +165,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
 
 void start_regulator(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+2, PiRegulator, NULL);
 }
 
 void set_function_mode(uint8_t mode){

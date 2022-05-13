@@ -78,7 +78,7 @@ static THD_FUNCTION(Gravity, arg){
     	//MODE CONDITIONS
     	if(get_selector() ==  SELECT_START){
 
-			if(get_angle() > 1.73 && get_angle() < 2.74 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+			if(get_angle() > 1.62 && get_angle() < 2.52 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
 				stop_rotation();
 				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
 				chThdSleepMilliseconds(100);
@@ -93,7 +93,7 @@ static THD_FUNCTION(Gravity, arg){
 					angle_moy = angle_sum/20.0;
 					angle_sum = 0;
 					count = 0;
-					if(angle_moy > 1.73 && angle_moy < 2.74 && get_quadrant() == 1){
+					if(angle_moy > 1.62 && angle_moy < 2.52 && get_quadrant() == 1){
 						set_function_mode(PARABOLA_FUNCTION_MODE);
 					}else{
 						set_function_mode(ROTATION_FUNCTION_MODE);
@@ -115,7 +115,7 @@ static THD_FUNCTION(Gravity, arg){
     		}
 
     	}
-    	chThdSleepMilliseconds(4);
+    	chThdSleepMilliseconds(2);
 	}
 }
 

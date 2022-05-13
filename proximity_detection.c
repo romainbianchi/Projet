@@ -13,13 +13,13 @@
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
-bool detect_fall(void){
-	if(get_calibrated_prox(1) < 10){
-		return true;
-	}else{
-		return false;
-	}
-}
+//bool detect_fall(void){
+//	if(get_calibrated_prox(1) < 10){
+//		return true;
+//	}else{
+//		return false;
+//	}
+//}
 
 static THD_WORKING_AREA(waProximityDetection, 128);
 static THD_FUNCTION(ProximityDetection, arg){

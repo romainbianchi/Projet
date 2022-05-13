@@ -8,12 +8,12 @@
 #include "regulator.h"
 #include "selector.h"
 
-#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
-#define GAP_WHEEL 5.3 //[cm]
-#define VYO 10.0f //[cm/s]
-#define VXO 3.0f
-#define G -2.0f //[cm/s^2]
-#define DT 0.02f  // [s]
+//#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
+//#define GAP_WHEEL 5.3 //[cm]
+//#define VYO 12.0f //[cm/s]
+//#define VXO 6.0f
+//#define G -2.0f //[cm/s^2]
+//#define DT 0.02f  // [s]
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
 

@@ -29,10 +29,10 @@ extern "C" {
 #define GOAL_FLOOR_DETECT		45u
 #define GOAL_TOF_VALUE			120u					// [mm]
 
-#define KP 						20.0f
-#define KI						0.1f
-#define KD						400.0f
-#define MAX_SUM_ERROR 			300
+#define KP 						10.0f
+#define KI						0.4f
+#define KD						300.0f
+#define MAX_SUM_ERROR 			200
 #define ERROR_THRESHOLD			1
 
 #define SELECT_START			8

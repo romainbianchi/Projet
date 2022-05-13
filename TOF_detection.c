@@ -32,16 +32,16 @@ static THD_FUNCTION(TofDetection, arg){
 
 		TOF_value = VL53L0X_get_dist_mm();
 
-		if(get_function_mode() == PARABOLA_FUNCTION_MODE && TOF_value < GOAL_FLOOR_DETECT){
-			floor_detected = true;
-		}
-
 		if(get_function_mode() == NORMAL_FUNCTION_MODE){
 			if(TOF_value < GOAL_TOF_VALUE){
 				object_detected = true;
 			}else{
 				object_detected = false;
 			}
+		}
+
+		if(get_function_mode() == PARABOLA_FUNCTION_MODE && TOF_value < GOAL_FLOOR_DETECT){
+			floor_detected = true;
 		}
 
 		//MODE CONDITIONS
@@ -54,7 +54,7 @@ static THD_FUNCTION(TofDetection, arg){
 			}
 		}
 
-		chThdSleepMilliseconds(3);
+		chThdSleepMilliseconds(5);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 
@@ -63,7 +63,7 @@ static THD_FUNCTION(TofDetection, arg){
 //----------------------------------------------------- EXTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
 void start_tof_detection(void){
-	chThdCreateStatic(waTofDetection, sizeof(waTofDetection), NORMALPRIO, TofDetection, NULL);
+	chThdCreateStatic(waTofDetection, sizeof(waTofDetection), NORMALPRIO+1, TofDetection, NULL);
 }
 
 bool get_object_detected(void){
