@@ -17,7 +17,7 @@ static bool floor_detected = false;
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
-static THD_WORKING_AREA(waTofDetection, 128);
+static THD_WORKING_AREA(waTofDetection, 256);
 static THD_FUNCTION(TofDetection, arg){
 
 	chRegSetThreadName(__FUNCTION__);
@@ -25,37 +25,42 @@ static THD_FUNCTION(TofDetection, arg){
 
 	uint16_t TOF_value = 0;
 
-	systime_t time = 0;
-
 	while(1){
-		time = chVTGetSystemTime();
 
 		TOF_value = VL53L0X_get_dist_mm();
+		//chprintf((BaseSequentialStream *)&SD3, "TOF␣=␣%d\r\n",TOF_value);
 
+		//PRIORITY SET
+		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() ==  FALL_FUNCTION_MODE || get_function_mode() == NORMAL_FUNCTION_MODE){
+			chThdSetPriority(NORMALPRIO+1);
+		}else{
+			chThdSetPriority(NORMALPRIO);
+		}
+
+		//OBJECT AND FOOR DETECTION
 		if(get_function_mode() == NORMAL_FUNCTION_MODE){
-			if(TOF_value < GOAL_TOF_VALUE){
+			if(TOF_value < GOAL_OBJECT_VALUE){
 				object_detected = true;
 			}else{
 				object_detected = false;
 			}
 		}
 
-		if((get_function_mode() == PARABOLA_FUNCTION_MODE|| get_function_mode() == FALL_FUNCTION_MODE) && TOF_value < GOAL_FLOOR_DETECT){
-			floor_detected = true;
-		}
+//		if((get_function_mode() == PARABOLA_FUNCTION_MODE|| get_function_mode() == FALL_FUNCTION_MODE) && TOF_value < GOAL_FLOOR_DETECT){
+//			floor_detected = true;
+//		}
 
 		//MODE CONDITIONS
 		if(get_selector() ==  SELECT_START){
 			if(object_detected && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(ROTATION_FUNCTION_MODE);
 			}
-			if(floor_detected && (get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE)){
+			if(TOF_value < GOAL_FLOOR_DETECT && (get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE)){
 				set_function_mode(LANDING_FUNCTION_MODE);
 			}
 		}
 
 		chThdSleepMilliseconds(5);
-		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 
 }

@@ -61,21 +61,8 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-
-
     // motors initialization
 	motors_init();
-
-	// acc calibration
-    chThdSleepMilliseconds(2000);
-    calibrate_acc();
-    // end of initialization
-    set_body_led(1);
-    chThdSleepMilliseconds(1000);
-    set_body_led(0);
-
-
-
 
 	// proximity sensor initialization
 	proximity_start();
@@ -84,6 +71,10 @@ int main(void)
 	// TOF start
 	VL53L0X_start();
 	chThdSleepMilliseconds(500);
+
+	// acc calibration
+    chThdSleepMilliseconds(2000);
+    calibrate_acc();
 
 	//start proximity detection
 	start_proximity_detection();
@@ -97,13 +88,14 @@ int main(void)
 	//start thread movement
 	start_regulator();
 
-    //start_parabola();
+	//end of initialization
+	set_body_led(1);
+	chThdSleepMilliseconds(200);
+	set_body_led(0);
 
     /* Infinite loop. */
     while (1) {
-//    	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-//    	show_gravity(imu_values);
-//    	chThdSleepMilliseconds(100);
+
     }
 }
 

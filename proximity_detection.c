@@ -29,6 +29,13 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 	while(1){
 
+		//PRIORITY SET
+		if(get_function_mode() == NORMAL_FUNCTION_MODE){
+			chThdSetPriority(NORMALPRIO+1);
+		}else{
+			chThdSetPriority(NORMALPRIO);
+		}
+
 		if(get_selector() == SELECT_START){
 			if(get_calibrated_prox(1) < 10 && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(FALL_FUNCTION_MODE);
@@ -36,7 +43,6 @@ static THD_FUNCTION(ProximityDetection, arg){
 		}
 
 		chThdSleepMilliseconds(20);
-		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 
 }

@@ -15,10 +15,15 @@
 #include "gravity_detection.h"
 #include "parabole.h"
 
+#define	ANGLE_AT_NINETY			100000
+#define ANGLE_PARABOLA_SUPP		4.2f
+#define ANGLE_PARABOLA_INF		2.3f
+#define ANGLE_LANDING_SUPP		0.05f
+#define ANGLE_LANDING_INF		-0.05f
+#define ANGLE_MOY_NB_SAMP		20.0f
+
 static float angle_from_horizontal = 0; // in °
 static uint8_t quadrant = 0; // dans quel quadrant pointe le robot
-
-#define	ANGLE_AT_NINETY		100000
 
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
@@ -53,7 +58,7 @@ void determine_angle(imu_msg_t imu_values){
 	}
 }
 
-static THD_WORKING_AREA(waGravity, 256);
+static THD_WORKING_AREA(waGravity, 512);
 static THD_FUNCTION(Gravity, arg){
 
 	chRegSetThreadName(__FUNCTION__);
@@ -78,7 +83,15 @@ static THD_FUNCTION(Gravity, arg){
     	//MODE CONDITIONS
     	if(get_selector() ==  SELECT_START){
 
-			if(get_angle() > 1.62 && get_angle() < 2.52 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+    		//PIORITY SET
+    		if(get_function_mode() == ROTATION_FUNCTION_MODE){
+    			chThdSetPriority(NORMALPRIO+1);
+    		}else{
+    			chThdSetPriority(NORMALPRIO);
+    		}
+
+    		//SPECIFIC ANGLES DETECTION
+			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
 				stop_rotation();
 				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
 				chThdSleepMilliseconds(100);
@@ -86,14 +99,13 @@ static THD_FUNCTION(Gravity, arg){
 
 			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
 				set_led(LED3, 1);
-				//stop_rotation();
 				angle_sum += angle_from_horizontal;
-				if(count == 20){
+				if(count == ANGLE_MOY_NB_SAMP){
 					set_led(LED3, 0);
-					angle_moy = angle_sum/20.0;
+					angle_moy = angle_sum/ANGLE_MOY_NB_SAMP;
 					angle_sum = 0;
 					count = 0;
-					if(angle_moy > 1.62 && angle_moy < 2.52 && get_quadrant() == 1){
+					if(angle_moy > ANGLE_PARABOLA_INF && angle_moy < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
 						set_function_mode(PARABOLA_FUNCTION_MODE);
 					}else{
 						set_function_mode(ROTATION_FUNCTION_MODE);
@@ -102,20 +114,23 @@ static THD_FUNCTION(Gravity, arg){
 				count++;
 			}
 
-
-//			if(get_angle() > 1.73 && get_angle() < 2.14 && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
-//				set_function_mode(PARABOLA_FUNCTION_MODE);
-//				left_motor_set_speed(0);
-//				right_motor_set_speed(0);
+//			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
+//				determine_angle(imu_values);
+//				if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
+//					set_function_mode(PARABOLA_FUNCTION_MODE);
+//				}else{
+//					set_function_mode(ROTATION_FUNCTION_MODE);
+//				}
 //			}
 
-    		if(get_angle() > -0.08 && get_angle() < 0.08 && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
+    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     			set_floor_detected(false);
     		}
 
     	}
-    	chThdSleepMilliseconds(2);
+
+    	chThdSleepMilliseconds(5);
 	}
 }
 

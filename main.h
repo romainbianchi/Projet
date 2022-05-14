@@ -13,10 +13,9 @@ extern "C" {
 #define NORMAL_FUNCTION_MODE			0
 #define PARABOLA_FUNCTION_MODE			1
 #define ROTATION_FUNCTION_MODE			2
-#define INV_ROTATION_FUNCTION_MODE		3
-#define LANDING_FUNCTION_MODE			4
-#define FALL_FUNCTION_MODE				5
-#define CONTROL_ANGLE_FUNCTION_MODE		6
+#define LANDING_FUNCTION_MODE			3
+#define FALL_FUNCTION_MODE				4
+#define CONTROL_ANGLE_FUNCTION_MODE		5
 
 #define PI						3.1415926536f
 #define WHEEL_DISTANCE      	5.35f  					// [cm]
@@ -27,7 +26,7 @@ extern "C" {
 #define PROX_FACTOR				0.01f
 #define GOAL_PROX_VALUE			1000.00f * PROX_FACTOR
 #define GOAL_FLOOR_DETECT		45u
-#define GOAL_TOF_VALUE			120u					// [mm]
+#define GOAL_OBJECT_VALUE		80u					// [mm]
 
 #define KP 						10.0f
 #define KI						0.2f
@@ -40,7 +39,7 @@ extern "C" {
 #define ANGLE_PARABOLA			63.3f					// [deg]
 #define ANGLE_HORIZONTAL		0
 #define ANGLE_THRESHOLD			1						// [deg]
-#define ROTATION_SPEED			150
+#define ROTATION_SPEED			180
 
 
 /** Robot wide IPC bus. */

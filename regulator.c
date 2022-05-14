@@ -17,12 +17,12 @@
 #include "gravity_detection.h"
 #include "parabole.h"
 
-#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP	76.92f //[step/cm]
-#define GAP_WHEEL 5.3 //[cm]
-#define	JUMP_VYO 12.0f //[cm/s]
-#define VXO 6.0f
-#define G -4.0f //[cm/s^2]
-#define DT 0.02f  // [s]
+#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f //[step/cm]
+#define GAP_WHEEL 									5.3 //[cm]
+#define	JUMP_VYO 									18.0f //[cm/s]
+#define VXO 										6.0f
+#define G 											-7.0f //[cm/s^2]
+#define DT 											0.02f  // [s]
 
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 static float time_parabola = 0;
@@ -62,14 +62,6 @@ void parabola(void){
 
 	time_parabola = time_parabola+DT;
 }
-
-//bool detect_fall(void){
-//	if(get_calibrated_prox(1) < 10){
-//		return true;
-//	}else{
-//		return false;
-//	}
-//}
 
 //REGULATOR
 int16_t pi_regulator(int prox_value, int goal){
@@ -119,16 +111,19 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	time = chVTGetSystemTime();
 
-		//chprintf((BaseSequentialStream *)&SD3, "angle␣=␣%f\r\n",get_angle());
-
     	if(get_selector() == SELECT_START){
+
+    		//SET PRIORITY
+    		if(function_mode == PARABOLA_FUNCTION_MODE || function_mode == FALL_FUNCTION_MODE){
+    			chThdSetPriority(NORMALPRIO+2);
+    		}else if (function_mode == NORMAL_FUNCTION_MODE){
+    			chThdSetPriority(NORMALPRIO+1);
+    		}else {
+    			chThdSetPriority(NORMALPRIO);
+    		}
 
     		if(function_mode == ROTATION_FUNCTION_MODE){
     			rotation();
-    		}
-    		if(function_mode == INV_ROTATION_FUNCTION_MODE){
-    			left_motor_set_speed(ROTATION_SPEED);
-    			right_motor_set_speed(-ROTATION_SPEED);
     		}
     		if(function_mode == PARABOLA_FUNCTION_MODE){
     			vyo = JUMP_VYO;
@@ -147,17 +142,12 @@ static THD_FUNCTION(PiRegulator, arg) {
 				right_motor_set_speed(INITIAL_SPEED + prox);
 				left_motor_set_speed(INITIAL_SPEED - prox);
     		}
-//    		if(function_mode == FALL_FUNCTION_MODE){
-//    			vyo = 0;
-//    			parabola();
-//    		}
 
     	}else{
     		left_motor_set_speed(0);
     		right_motor_set_speed(0);
     	}
 
-//    	chThdSleepMilliseconds(10);
     	chThdSleepUntilWindowed(time, time + MS2ST(20));
     }
 }
@@ -165,7 +155,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
 
 void start_regulator(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+2, PiRegulator, NULL);
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
 }
 
 void set_function_mode(uint8_t mode){
