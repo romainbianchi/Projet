@@ -15,7 +15,6 @@
 #include "proximity_detection.h"
 #include "TOF_detection.h"
 #include "gravity_detection.h"
-#include "parabole.h"
 
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f //[step/cm]
 #define GAP_WHEEL 									5.3 //[cm]
@@ -28,7 +27,7 @@
 
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 static float time_parabola = 0;
-static float vyo = 0;
+static float vyo = 0;/******* RENDRE CETTE VARIABLE NON GLOBALE *******/
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
@@ -115,14 +114,14 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	if(get_selector() == SELECT_START){
 
-    		//SET PRIORITY
-    		if(function_mode == PARABOLA_FUNCTION_MODE || function_mode == FALL_FUNCTION_MODE){
-    			chThdSetPriority(NORMALPRIO+2);
-    		}else if (function_mode == NORMAL_FUNCTION_MODE){
-    			chThdSetPriority(NORMALPRIO+1);
-    		}else {
-    			chThdSetPriority(NORMALPRIO);
-    		}
+//    		//SET PRIORITY
+//    		if(function_mode == PARABOLA_FUNCTION_MODE || function_mode == FALL_FUNCTION_MODE){
+//    			chThdSetPriority(NORMALPRIO+2);
+//    		}else if (function_mode == NORMAL_FUNCTION_MODE){
+//    			chThdSetPriority(NORMALPRIO+1);
+//    		}else {
+//    			chThdSetPriority(NORMALPRIO);
+//    		}
 
     		if(function_mode == ROTATION_FUNCTION_MODE){
     			rotation(ANTI_CLOCKWISE);
@@ -148,6 +147,12 @@ static THD_FUNCTION(PiRegulator, arg) {
 				left_motor_set_speed(INITIAL_SPEED - prox);
     		}
 
+    		if(function_mode == END_FUNCTION_MODE){
+    			left_motor_set_speed(0);
+    			right_motor_set_speed(0);
+    			set_body_led(1);
+    		}
+
     	}else{
     		left_motor_set_speed(0);
     		right_motor_set_speed(0);
@@ -160,7 +165,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
 
 void start_regulator(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
 }
 
 void set_function_mode(uint8_t mode){

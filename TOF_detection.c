@@ -28,12 +28,12 @@ static THD_FUNCTION(TofDetection, arg){
 
 		TOF_value = VL53L0X_get_dist_mm();
 
-		//PRIORITY SET
-		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == NORMAL_FUNCTION_MODE){
-			chThdSetPriority(NORMALPRIO+1);
-		}else{
-			chThdSetPriority(NORMALPRIO);
-		}
+//		//PRIORITY SET
+//		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == NORMAL_FUNCTION_MODE){
+//			chThdSetPriority(NORMALPRIO+1);
+//		}else{
+//			chThdSetPriority(NORMALPRIO);
+//		}
 
 		//OBJECT DETECTION
 		if(get_function_mode() == NORMAL_FUNCTION_MODE){
@@ -59,5 +59,5 @@ static THD_FUNCTION(TofDetection, arg){
 //----------------------------------------------------- EXTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
 void start_tof_detection(void){
-	chThdCreateStatic(waTofDetection, sizeof(waTofDetection), NORMALPRIO+1, TofDetection, NULL);
+	chThdCreateStatic(waTofDetection, sizeof(waTofDetection), NORMALPRIO, TofDetection, NULL);
 }

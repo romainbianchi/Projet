@@ -17,6 +17,7 @@ extern "C" {
 #define LANDING_FUNCTION_MODE			4
 #define FALL_FUNCTION_MODE				5
 #define CONTROL_ANGLE_FUNCTION_MODE		6
+#define END_FUNCTION_MODE				7
 
 #define PI						3.1415926536f
 #define WHEEL_DISTANCE      	5.35f  					// [cm]
@@ -30,7 +31,7 @@ extern "C" {
 
 #define KP 						10.0f
 #define KI						0.2f
-#define KD						230.0f
+#define KD						250.0f
 #define MAX_SUM_ERROR 			300
 #define ERROR_THRESHOLD			1
 

@@ -7,19 +7,16 @@
 #include <i2c_bus.h>
 #include <motors.h>
 #include <selector.h>
-#include <chprintf.h>
-#include <leds.h>
 
 #include "regulator.h"
 #include "TOF_detection.h"
 #include "gravity_detection.h"
-#include "parabole.h"
 
 #define	ANGLE_AT_NINETY			100000
 #define ANGLE_PARABOLA_SUPP		4.2f
 #define ANGLE_PARABOLA_INF		2.3f
-#define ANGLE_LANDING_SUPP		0.05f
-#define ANGLE_LANDING_INF		-0.05f
+#define ANGLE_LANDING_SUPP		0.18f
+#define ANGLE_LANDING_INF		-0.18f
 #define ANGLE_MOY_NB_SAMP		20.0f
 
 static float angle_from_horizontal = 0; // in °
@@ -77,12 +74,12 @@ static THD_FUNCTION(Gravity, arg){
     	//MODE CONDITIONS
     	if(get_selector() ==  SELECT_START){
 
-    		//PIORITY SET
-    		if(get_function_mode() == ROTATION_FUNCTION_MODE){
-    			chThdSetPriority(NORMALPRIO+1);
-    		}else{
-    			chThdSetPriority(NORMALPRIO);
-    		}
+//    		//PIORITY SET
+//    		if(get_function_mode() == ROTATION_FUNCTION_MODE || INV_ROTATION_FUNCTION_MODE){
+//    			chThdSetPriority(NORMALPRIO+1);
+//    		}else{
+//    			chThdSetPriority(NORMALPRIO);
+//    		}
 
     		//SPECIFIC ANGLES DETECTION
 			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && (get_function_mode() == ROTATION_FUNCTION_MODE || get_function_mode() == INV_ROTATION_FUNCTION_MODE)){
@@ -106,7 +103,8 @@ static THD_FUNCTION(Gravity, arg){
 				}
 			}
 
-    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
+    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4)
+    		   && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     		}
 

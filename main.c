@@ -19,7 +19,6 @@
 #include "proximity_detection.h"
 #include "TOF_detection.h"
 #include "regulator.h"
-#include "parabole.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -27,7 +26,6 @@
 #include <chprintf.h>
 
 #include <i2c_bus.h>
-#include "parabole.h"
 
 #include <sensors/imu.h>
 #include "gravity_detection.h"
