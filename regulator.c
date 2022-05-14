@@ -63,13 +63,13 @@ void parabola(void){
 	time_parabola = time_parabola+DT;
 }
 
-bool detect_fall(void){
-	if(get_calibrated_prox(1) < 10){
-		return true;
-	}else{
-		return false;
-	}
-}
+//bool detect_fall(void){
+//	if(get_calibrated_prox(1) < 10){
+//		return true;
+//	}else{
+//		return false;
+//	}
+//}
 
 //REGULATOR
 int16_t pi_regulator(int prox_value, int goal){
@@ -134,23 +134,23 @@ static THD_FUNCTION(PiRegulator, arg) {
     			vyo = JUMP_VYO;
     			parabola();
 			}
+    		if(function_mode == FALL_FUNCTION_MODE){
+    			vyo = 0;
+    			parabola();
+    		}
     		if(function_mode == LANDING_FUNCTION_MODE){
     			time_parabola = 0;
     			rotation();
     		}
     		if(function_mode == NORMAL_FUNCTION_MODE){
-    			if(detect_fall()){
-    				set_function_mode(FALL_FUNCTION_MODE);
-    			}else{
-					prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
-					right_motor_set_speed(INITIAL_SPEED + prox);
-					left_motor_set_speed(INITIAL_SPEED - prox);
-				}
+				prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
+				right_motor_set_speed(INITIAL_SPEED + prox);
+				left_motor_set_speed(INITIAL_SPEED - prox);
     		}
-    		if(function_mode == FALL_FUNCTION_MODE){
-    			vyo = 0;
-    			parabola();
-    		}
+//    		if(function_mode == FALL_FUNCTION_MODE){
+//    			vyo = 0;
+//    			parabola();
+//    		}
 
     	}else{
     		left_motor_set_speed(0);

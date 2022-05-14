@@ -13,13 +13,13 @@
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
-//bool detect_fall(void){
-//	if(get_calibrated_prox(1) < 10){
-//		return true;
-//	}else{
-//		return false;
-//	}
-//}
+bool detect_fall(void){
+	if(get_calibrated_prox(1) < 10){
+		return true;
+	}else{
+		return false;
+	}
+}
 
 static THD_WORKING_AREA(waProximityDetection, 128);
 static THD_FUNCTION(ProximityDetection, arg){
@@ -27,21 +27,15 @@ static THD_FUNCTION(ProximityDetection, arg){
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 
-	int proximity1_value = 0;
-	int proximity2_value = 0;
-	int proximity3_value = 0;
-
-	systime_t time = 0;
-
 	while(1){
 
-//		if(get_selector() == SELECT_START){
-//			if(detect_fall() && get_function_mode() == NORMAL_FUNCTION_MODE){
-//				set_function_mode(FALL_FUNCTION_MODE);
-//			}
-//		}
+		if(get_selector() == SELECT_START){
+			if(get_calibrated_prox(1) < 10 && get_function_mode() == NORMAL_FUNCTION_MODE){
+				set_function_mode(FALL_FUNCTION_MODE);
+			}
+		}
 
-		chThdSleepMilliseconds(10);
+		chThdSleepMilliseconds(20);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5));
 	}
 

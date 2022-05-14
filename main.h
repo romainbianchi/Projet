@@ -30,9 +30,9 @@ extern "C" {
 #define GOAL_TOF_VALUE			120u					// [mm]
 
 #define KP 						10.0f
-#define KI						0.4f
-#define KD						300.0f
-#define MAX_SUM_ERROR 			200
+#define KI						0.2f
+#define KD						230.0f
+#define MAX_SUM_ERROR 			300
 #define ERROR_THRESHOLD			1
 
 #define SELECT_START			8

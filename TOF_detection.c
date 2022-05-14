@@ -40,7 +40,7 @@ static THD_FUNCTION(TofDetection, arg){
 			}
 		}
 
-		if(get_function_mode() == PARABOLA_FUNCTION_MODE && TOF_value < GOAL_FLOOR_DETECT){
+		if((get_function_mode() == PARABOLA_FUNCTION_MODE|| get_function_mode() == FALL_FUNCTION_MODE) && TOF_value < GOAL_FLOOR_DETECT){
 			floor_detected = true;
 		}
 
@@ -49,7 +49,7 @@ static THD_FUNCTION(TofDetection, arg){
 			if(object_detected && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(ROTATION_FUNCTION_MODE);
 			}
-			if(get_floor_detected() && get_function_mode() == PARABOLA_FUNCTION_MODE){
+			if(floor_detected && (get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE)){
 				set_function_mode(LANDING_FUNCTION_MODE);
 			}
 		}
