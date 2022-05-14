@@ -25,7 +25,6 @@ extern "C" {
 #define INITIAL_SPEED			600 					// [steps]
 #define PROX_FACTOR				0.01f
 #define GOAL_PROX_VALUE			1000.00f * PROX_FACTOR
-#define GOAL_FLOOR_DETECT		45u
 #define GOAL_OBJECT_VALUE		80u					// [mm]
 
 #define KP 						10.0f

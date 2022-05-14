@@ -11,6 +11,8 @@
 #include "proximity_detection.h"
 #include "regulator.h"
 
+#define PROX_FLOOR_DETECT		500
+
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
 bool detect_fall(void){
@@ -30,15 +32,19 @@ static THD_FUNCTION(ProximityDetection, arg){
 	while(1){
 
 		//PRIORITY SET
-		if(get_function_mode() == NORMAL_FUNCTION_MODE){
+		if(get_function_mode() == NORMAL_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE){
 			chThdSetPriority(NORMALPRIO+1);
 		}else{
 			chThdSetPriority(NORMALPRIO);
 		}
 
+		//MODE CONDITIONS
 		if(get_selector() == SELECT_START){
 			if(get_calibrated_prox(1) < 10 && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(FALL_FUNCTION_MODE);
+			}
+			if((get_calibrated_prox(0) > PROX_FLOOR_DETECT || get_calibrated_prox(1) > PROX_FLOOR_DETECT) && (get_function_mode() == FALL_FUNCTION_MODE || get_function_mode() == PARABOLA_FUNCTION_MODE)){
+				set_function_mode(LANDING_FUNCTION_MODE);
 			}
 		}
 
