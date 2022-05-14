@@ -92,36 +92,25 @@ static THD_FUNCTION(Gravity, arg){
 
     		//SPECIFIC ANGLES DETECTION
 			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
+				chprintf((BaseSequentialStream *)&SD3, "angle1␣=␣%f\r\n",angle_from_horizontal);
 				stop_rotation();
 				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
-				chThdSleepMilliseconds(100);
+				//chThdSleepMilliseconds(1000);
 			}
 
 			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
-				set_led(LED3, 1);
-				angle_sum += angle_from_horizontal;
-				if(count == ANGLE_MOY_NB_SAMP){
-					set_led(LED3, 0);
-					angle_moy = angle_sum/ANGLE_MOY_NB_SAMP;
-					angle_sum = 0;
+				if(count == 20){
 					count = 0;
-					if(angle_moy > ANGLE_PARABOLA_INF && angle_moy < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
+					determine_angle(imu_values);
+					if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
 						set_function_mode(PARABOLA_FUNCTION_MODE);
 					}else{
 						set_function_mode(ROTATION_FUNCTION_MODE);
 					}
+				}else{
+					count ++;
 				}
-				count++;
 			}
-
-//			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
-//				determine_angle(imu_values);
-//				if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
-//					set_function_mode(PARABOLA_FUNCTION_MODE);
-//				}else{
-//					set_function_mode(ROTATION_FUNCTION_MODE);
-//				}
-//			}
 
     		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4) && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
