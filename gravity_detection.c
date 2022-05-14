@@ -67,15 +67,9 @@ static THD_FUNCTION(Gravity, arg){
     messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
     imu_msg_t imu_values;
 
-    systime_t time = 0;
-
     static uint8_t count = 0;
-    static float angle_sum = 0;
-    float angle_moy = 0;
 
 	while(1){
-
-		time = chVTGetSystemTime();
 
     	messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
     	determine_angle(imu_values);
@@ -91,21 +85,21 @@ static THD_FUNCTION(Gravity, arg){
     		}
 
     		//SPECIFIC ANGLES DETECTION
-			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && get_function_mode() == ROTATION_FUNCTION_MODE){
-				chprintf((BaseSequentialStream *)&SD3, "angle1␣=␣%f\r\n",angle_from_horizontal);
+			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && (get_function_mode() == ROTATION_FUNCTION_MODE || get_function_mode() == INV_ROTATION_FUNCTION_MODE)){
 				stop_rotation();
 				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
-				//chThdSleepMilliseconds(1000);
 			}
 
 			if(get_function_mode() == CONTROL_ANGLE_FUNCTION_MODE){
-				if(count == 20){
+				if(count == 10){
 					count = 0;
 					determine_angle(imu_values);
 					if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
 						set_function_mode(PARABOLA_FUNCTION_MODE);
-					}else{
+					}else if(angle_from_horizontal < ANGLE_PARABOLA_SUPP){
 						set_function_mode(ROTATION_FUNCTION_MODE);
+					}else{
+						set_function_mode(INV_ROTATION_FUNCTION_MODE);
 					}
 				}else{
 					count ++;

@@ -7,8 +7,8 @@
  * in : void
  * out : void */
 void start_parabola(void);
-void rotation(void);
-void stop_rotation(void);
+//void rotation(void);
+//void stop_rotation(void);
 //void parabola(float time_parabola);
 
 

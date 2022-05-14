@@ -70,15 +70,15 @@
 //	chThdCreateStatic(waParabola, sizeof(waParabola), NORMALPRIO+1, Parabola, NULL);
 //}
 
-void rotation(void){
-	left_motor_set_speed(-ROTATION_SPEED);
-	right_motor_set_speed(ROTATION_SPEED);
-}
+//void rotation(void){
+//	left_motor_set_speed(-ROTATION_SPEED);
+//	right_motor_set_speed(ROTATION_SPEED);
+//}
 
-void stop_rotation(void){
-	left_motor_set_speed(0);
-	right_motor_set_speed(0);
-}
+//void stop_rotation(void){
+//	left_motor_set_speed(0);
+//	right_motor_set_speed(0);
+//}
 
 //void parabola(float time_parabola){
 //	static float t = 0;

@@ -21,8 +21,10 @@
 #define GAP_WHEEL 									5.3 //[cm]
 #define	JUMP_VYO 									18.0f //[cm/s]
 #define VXO 										6.0f
-#define G 											-7.0f //[cm/s^2]
+#define G 											-8.0f //[cm/s^2]
 #define DT 											0.02f  // [s]
+#define CLOCKWISE									0
+#define ANTI_CLOCKWISE								1
 
 static uint8_t function_mode = NORMAL_FUNCTION_MODE;
 static float time_parabola = 0;
@@ -123,7 +125,10 @@ static THD_FUNCTION(PiRegulator, arg) {
     		}
 
     		if(function_mode == ROTATION_FUNCTION_MODE){
-    			rotation();
+    			rotation(ANTI_CLOCKWISE);
+    		}
+    		if(function_mode == INV_ROTATION_FUNCTION_MODE){
+    			rotation(CLOCKWISE);
     		}
     		if(function_mode == PARABOLA_FUNCTION_MODE){
     			vyo = JUMP_VYO;
@@ -135,7 +140,7 @@ static THD_FUNCTION(PiRegulator, arg) {
     		}
     		if(function_mode == LANDING_FUNCTION_MODE){
     			time_parabola = 0;
-    			rotation();
+    			rotation(ANTI_CLOCKWISE);
     		}
     		if(function_mode == NORMAL_FUNCTION_MODE){
 				prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
@@ -164,4 +169,19 @@ void set_function_mode(uint8_t mode){
 
 uint8_t get_function_mode(void){
 	return function_mode;
+}
+
+void rotation(uint8_t direction){
+	if(direction == ANTI_CLOCKWISE){
+		left_motor_set_speed(-ROTATION_SPEED);
+		right_motor_set_speed(ROTATION_SPEED);
+	}else if(direction == CLOCKWISE){
+		left_motor_set_speed(ROTATION_SPEED);
+		right_motor_set_speed(-ROTATION_SPEED);
+	}
+}
+
+void stop_rotation(void){
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
 }
