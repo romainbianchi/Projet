@@ -28,7 +28,7 @@
 //ROTATIION CONSTANTS
 #define ROTATION_SPEED								180			//[steps/s]
 #define CLOCKWISE									0
-#define ANTI_CLOCKWISE								1
+#define COUNTER_CLOCKWISE							1
 
 //REGULATOR CONSTANTS
 #define INITIAL_SPEED								600 		//[steps/s]
@@ -36,7 +36,7 @@
 #define GOAL_PROX_VALUE								1000.00f * PROX_FACTOR
 #define KP 											5.0f
 #define KI											0.02f
-#define KD											200.0f
+#define KD											250.0f
 #define MAX_SUM_ERROR 								300
 #define ERROR_THRESHOLD								0.0
 
@@ -46,25 +46,36 @@ static float time_parabola = 0;
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
 //PARABOLE
+
+/* Conversion from cm to step for the motors functions */
 float speed_conversion_cm_to_step(float cm_speed){
 	return cm_speed * CONSTANT_CONVERSION_SPEED_CM_TO_STEP;
 }
 
-float calculate_outer_speed(float roc, float v){
-	return v*(1+(GAP_WHEEL/(2*roc)));
-}
-float calculate_inner_speed(float roc, float v){
-	return v*(1-(GAP_WHEEL/(2*roc)));
-}
-
+/* Return the radius of convergence of the parabola at time t*/
 float calculate_roc(float t, float vyo){
 	return (float)pow(pow(VXO*VXO + (G*t+vyo)*(G*t+vyo), 1.0/2.0), 3.0)/abs(VXO*G);
 }
 
+/* Return the norm of the tangential speed of the parabola at time t */
 float calculate_norm_speed(float t, float vyo){
 	return sqrt((G*t)*(G*t)+(2*G*vyo*t)+VXO*VXO+vyo*vyo);
 }
 
+/* Return the speed of the outer wheel in order to follow the parabola */
+float calculate_outer_speed(float roc, float v){
+	return v*(1+(GAP_WHEEL/(2*roc)));
+}
+
+/* Return the speed of the inner wheel in order to follow the parabola */
+float calculate_inner_speed(float roc, float v){
+	return v*(1-(GAP_WHEEL/(2*roc)));
+}
+
+/* make the robot follow the desired parabola
+ * DT must be accorded with the timing of the motors_control thread in order to obtain the correct shape of the parabola
+ * The time is incremented every time the function is called in the thread
+ */
 void parabola(float vyo){
 	static float roc = 0;
 	static float speed = 0;
@@ -78,7 +89,10 @@ void parabola(float vyo){
 	time_parabola = time_parabola+DT;
 }
 
+
 //REGULATOR
+
+/* PID regulator function to maintain the robot at the desired value from the wall */
 int16_t pi_regulator(int prox_value, int goal){
 
 	float error = 0;
@@ -111,8 +125,13 @@ int16_t pi_regulator(int prox_value, int goal){
 }
 
 //THREAD
-static THD_WORKING_AREA(waPiRegulator, 256);
-static THD_FUNCTION(PiRegulator, arg) {
+
+/* Motors control thread
+ * Change the motors behavior according to the actual mode
+ * chThdSleepUntilWindowed essential, assure that the parabola function is called at the same interval an so that the time is correctly incremented
+ */
+static THD_WORKING_AREA(waMotorControl, 256);
+static THD_FUNCTION(MotorControl, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
@@ -128,7 +147,6 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	if(get_selector() == SELECT_START){
 
-    		// motors according to actual mode
     		switch(get_function_mode()){
 
     			case NORMAL_FUNCTION_MODE:
@@ -142,7 +160,7 @@ static THD_FUNCTION(PiRegulator, arg) {
         			break;
 
     			case ROTATION_FUNCTION_MODE:
-        			rotation(ANTI_CLOCKWISE);
+        			rotation(COUNTER_CLOCKWISE);
         			break;
 
     			case INV_ROTATION_FUNCTION_MODE:
@@ -151,12 +169,13 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     			case LANDING_FUNCTION_MODE:
         			time_parabola = 0;
-        			rotation(ANTI_CLOCKWISE);
+        			rotation(COUNTER_CLOCKWISE);
         			break;
 
     			case INV_LANDING_FUNCTION_MODE:
     				time_parabola = 0;
     				rotation(CLOCKWISE);
+    				break;
 
     			case FALL_FUNCTION_MODE:
         			parabola(FALL_VYO);
@@ -178,13 +197,13 @@ static THD_FUNCTION(PiRegulator, arg) {
 
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
 
-
-void start_regulator(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
+/* Start motor control thread*/
+void start_motors_control(void){
+	chThdCreateStatic(waMotorControl, sizeof(waMotorControl), NORMALPRIO+1, MotorControl, NULL);
 }
 
 void rotation(uint8_t direction){
-	if(direction == ANTI_CLOCKWISE){
+	if(direction == COUNTER_CLOCKWISE){
 		left_motor_set_speed(-ROTATION_SPEED);
 		right_motor_set_speed(ROTATION_SPEED);
 	}else if(direction == CLOCKWISE){

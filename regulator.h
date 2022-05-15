@@ -4,8 +4,13 @@
 #include <stdint.h>
 #include <hal.h>
 
-void start_regulator(void);
+/* Start motor control thread*/
+void start_motors_control(void);
+
+/* Activate clockwise or counterclockwise rotation */
 void rotation(uint8_t direction);
+
+/* Stop motors */
 void stop_motors(void);
 
 #endif /* REGULATOR_H */

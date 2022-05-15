@@ -152,7 +152,7 @@ static THD_FUNCTION(Gravity, arg){
 					determine_angle(imu_values);
 
 					if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP
-							/*&& (quadrant == 1 || quadrant == 4)*/){
+							&& (quadrant == 1 || quadrant == 4)){
 
 						set_function_mode(NORMAL_FUNCTION_MODE);
 

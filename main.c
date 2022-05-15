@@ -77,7 +77,7 @@ int main(void)
 	start_gravity();
 
 	/* start thread movement */
-	start_regulator();
+	start_motors_control();
 
 	/* end of initialization signal */
 	set_body_led(1);
