@@ -15,9 +15,8 @@
 #define	ANGLE_AT_NINETY			100000
 #define ANGLE_PARABOLA_SUPP		4.2f
 #define ANGLE_PARABOLA_INF		2.3f
-#define ANGLE_LANDING_SUPP		0.18f
-#define ANGLE_LANDING_INF		-0.18f
-#define ANGLE_MOY_NB_SAMP		20.0f
+#define ANGLE_LANDING_SUPP		0.15f
+#define ANGLE_LANDING_INF		0.0f
 
 static float angle_from_horizontal = 0; // in °
 static uint8_t quadrant = 0; // dans quel quadrant pointe le robot
@@ -103,7 +102,7 @@ static THD_FUNCTION(Gravity, arg){
 				}
 			}
 
-    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4)
+    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP /*&& (quadrant == 1 || quadrant == 4)*/
     		   && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     		}

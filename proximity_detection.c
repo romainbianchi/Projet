@@ -12,7 +12,7 @@
 #include "regulator.h"
 
 #define PROX_FLOOR_DETECT		600
-#define PROX_END_DETECT			800
+#define PROX_END_DETECT			600
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 

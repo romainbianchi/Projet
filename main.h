@@ -33,7 +33,7 @@ extern "C" {
 #define KI						0.2f
 #define KD						250.0f
 #define MAX_SUM_ERROR 			300
-#define ERROR_THRESHOLD			1
+#define ERROR_THRESHOLD			2
 
 #define SELECT_START			8
 #define DEG_PER_STEP			0.141f
