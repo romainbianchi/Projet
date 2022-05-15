@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include <ch.h>
 #include <hal.h>
@@ -13,7 +12,6 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <msgbus/messagebus.h>
 #include <sensors/imu.h>
-#include <selector.h>
 
 #include "main.h"
 #include "proximity_detection.h"
@@ -37,7 +35,7 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
-static uint8_t function_mode = NORMAL_FUNCTION_MODE; //variable used to set the different modes
+static uint8_t function_mode = NORMAL_MODE; //variable used to set the different modes
 
 int main(void)
 {

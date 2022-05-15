@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <hal.h>
 
-/* Start motor control thread*/
+/* Start motor control thread */
 void start_motors_control(void);
 
 /* Activate clockwise or counterclockwise rotation */

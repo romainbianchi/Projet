@@ -2,19 +2,13 @@
 #include <hal.h>
 #include <stdlib.h>
 #include <math.h>
-#include <chprintf.h>
 #include <sensors/proximity.h>
 #include <motors.h>
 #include <selector.h>
-#include <sensors/imu.h>
 #include <leds.h>
 
 #include "main.h"
 #include "regulator.h"
-#include "motors.h"
-#include "proximity_detection.h"
-#include "TOF_detection.h"
-#include "gravity_detection.h"
 
 //PARABOLA CONSTANTS
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f 		//[step/cm]
@@ -36,7 +30,7 @@
 #define GOAL_PROX_VALUE								1000.00f * PROX_FACTOR
 #define KP 											5.0f
 #define KI											0.02f
-#define KD											250.0f
+#define KD											230.0f
 #define MAX_SUM_ERROR 								300
 #define ERROR_THRESHOLD								0.0
 
@@ -128,7 +122,6 @@ int16_t pi_regulator(int prox_value, int goal){
 
 /* Motors control thread
  * Change the motors behavior according to the actual mode
- * chThdSleepUntilWindowed essential, assure that the parabola function is called at the same interval an so that the time is correctly incremented
  */
 static THD_WORKING_AREA(waMotorControl, 256);
 static THD_FUNCTION(MotorControl, arg) {
@@ -149,39 +142,47 @@ static THD_FUNCTION(MotorControl, arg) {
 
     		switch(get_function_mode()){
 
-    			case NORMAL_FUNCTION_MODE:
+    			case NORMAL_MODE:
     				prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
     				right_motor_set_speed(INITIAL_SPEED + prox);
     				left_motor_set_speed(INITIAL_SPEED - prox);
     				break;
 
-    			case PARABOLA_FUNCTION_MODE:
+    			case PARABOLA_MODE:
         			parabola(JUMP_VYO);
         			break;
 
-    			case ROTATION_FUNCTION_MODE:
+    			case ROTATION_MODE:
         			rotation(COUNTER_CLOCKWISE);
         			break;
 
-    			case INV_ROTATION_FUNCTION_MODE:
+    			case INV_ROTATION_MODE:
         			rotation(CLOCKWISE);
         			break;
 
-    			case LANDING_FUNCTION_MODE:
+    			case LANDING_MODE:
         			time_parabola = 0;
         			rotation(COUNTER_CLOCKWISE);
         			break;
 
-    			case INV_LANDING_FUNCTION_MODE:
+    			case INV_LANDING_MODE:
     				time_parabola = 0;
     				rotation(CLOCKWISE);
     				break;
 
-    			case FALL_FUNCTION_MODE:
+    			case FALL_MODE:
         			parabola(FALL_VYO);
         			break;
 
-    			case END_FUNCTION_MODE:
+    			case CONTROL_PARA_ANGLE_MODE:
+    				stop_motors();
+    				break;
+
+    			case CONTROL_HORZ_ANGLE_MODE:
+    				stop_motors();
+    				break;
+
+    			case END_MODE:
     				stop_motors();
     				set_body_led(1);
     				break;
@@ -191,6 +192,8 @@ static THD_FUNCTION(MotorControl, arg) {
     		stop_motors();
     	}
 
+    	//chThdSleepUntilWindowed needed
+    	//assure that the parabola function is called at the same interval an so that the time is correctly incremented
     	chThdSleepUntilWindowed(time, time + MS2ST(20));
     }
 }
@@ -202,6 +205,7 @@ void start_motors_control(void){
 	chThdCreateStatic(waMotorControl, sizeof(waMotorControl), NORMALPRIO+1, MotorControl, NULL);
 }
 
+/* clockwise or counter clockwise rotation */
 void rotation(uint8_t direction){
 	if(direction == COUNTER_CLOCKWISE){
 		left_motor_set_speed(-ROTATION_SPEED);
@@ -212,6 +216,7 @@ void rotation(uint8_t direction){
 	}
 }
 
+/* stop the motors */
 void stop_motors(void){
 	left_motor_set_speed(0);
 	right_motor_set_speed(0);

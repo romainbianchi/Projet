@@ -1,16 +1,10 @@
 #include <ch.h>
 #include <hal.h>
-#include <stdlib.h>
-#include <math.h>
-#include <main.h>
 #include <sensors/imu.h>
-#include <i2c_bus.h>
-#include <motors.h>
 #include <selector.h>
 
-#include "regulator.h"
-#include "TOF_detection.h"
 #include "gravity_detection.h"
+#include "main.h"
 
 #define	ANGLE_AT_NINETY			100000
 #define ANGLE_PARABOLA_SUPP		4.2f
@@ -20,13 +14,15 @@
 #define COUNT_BEFORE_CONTROL	10
 
 
-static float angle_from_horizontal = 0; // représente tan(alpha), rapport des valeurs de l'imu
-static uint8_t quadrant = 0; // dans quel quadrant pointe le robot
+static float angle_from_horizontal = 0;
+static uint8_t quadrant = 0;
 
 
 //------------------------------- INTERNAL FUNCTIONS --------------------------------
 
 /* Use the IMU acceleration values to calculate the angle between the horizontal and the front of the robot
+ * The angle is represented by the division of the y acceleration value and the x acceleration value
+ * Since the angle wanted is known we can use this result to find an angle by doing the arctan manually and make the code more efficient
  * Also determine in which trigonometrical quadrant is the front of the robot pointing
  */
 void determine_angle(imu_msg_t imu_values){
@@ -62,7 +58,7 @@ void determine_angle(imu_msg_t imu_values){
 
 /* Gravity detection thread
  * Detect the desired angle according to the actual mode
- * Due to the instability during rotation, the angle is controlled before starting the parabola
+ * The angle is controlled before starting the parabola or returning to normal mode
  */
 static THD_WORKING_AREA(waGravity, 512);
 static THD_FUNCTION(Gravity, arg){
@@ -86,28 +82,26 @@ static THD_FUNCTION(Gravity, arg){
 
     		// Detect the parabola angle when the robot is in rotation or inverse rotation mode
 			if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && quadrant == 1
-					&& (get_function_mode() == ROTATION_FUNCTION_MODE || get_function_mode() == INV_ROTATION_FUNCTION_MODE)){
+					&& (get_function_mode() == ROTATION_MODE || get_function_mode() == INV_ROTATION_MODE)){
 
-				stop_motors();
-				set_function_mode(CONTROL_PARA_ANGLE_FUNCTION_MODE);
+				set_function_mode(CONTROL_PARA_ANGLE_MODE);
 
 			}
 
 
 			// When in landing mode or inverse landing mode, detect if the robot is in the horizontal range defined
     		if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP
-    				&& (get_function_mode() == LANDING_FUNCTION_MODE || get_function_mode() == INV_LANDING_FUNCTION_MODE)
+    				&& (get_function_mode() == LANDING_MODE || get_function_mode() == INV_LANDING_MODE)
 					&& (quadrant == 1 || quadrant == 4)){
 
-    			stop_motors();
-    			set_function_mode(CONTROL_HORZ_ANGLE_FUNCTION_MODE);
+    			set_function_mode(CONTROL_HORZ_ANGLE_MODE);
 
     		}
 
 
 			// when in control angle mode, control if the robot is in the desired range before starting the parabola
 			// if not, adapt the direction of rotation to approach the desired angle.
-			if(get_function_mode() == CONTROL_PARA_ANGLE_FUNCTION_MODE){
+			if(get_function_mode() == CONTROL_PARA_ANGLE_MODE){
 
 				if(count_parabola == COUNT_BEFORE_CONTROL){
 
@@ -116,21 +110,21 @@ static THD_FUNCTION(Gravity, arg){
 
 					if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && quadrant == 1){
 
-						set_function_mode(PARABOLA_FUNCTION_MODE);
+						set_function_mode(PARABOLA_MODE);
 
 					// if the robot is in the first quadrant, determine the angle is larger or smaller than the desired range and adapt rotation
 					}else if(quadrant == 1){
 
 						if(angle_from_horizontal < ANGLE_PARABOLA_INF){
-							set_function_mode(ROTATION_FUNCTION_MODE);
+							set_function_mode(ROTATION_MODE);
 						}else if(angle_from_horizontal > ANGLE_PARABOLA_SUPP){
-							set_function_mode(INV_ROTATION_FUNCTION_MODE);
+							set_function_mode(INV_ROTATION_MODE);
 						}
 
 					// if the front of the robot is in the second quadrant, the angle is to big, adapt the rotation
 					}else if(quadrant == 2){
 
-						set_function_mode(INV_ROTATION_FUNCTION_MODE);
+						set_function_mode(INV_ROTATION_MODE);
 
 					}
 
@@ -144,7 +138,7 @@ static THD_FUNCTION(Gravity, arg){
 
 			// When in control horz angle mode, control if the robot is in the horz range defined
 			// If not, adapt the direction of rotation to approach the desired angle
-			if(get_function_mode() == CONTROL_HORZ_ANGLE_FUNCTION_MODE){
+			if(get_function_mode() == CONTROL_HORZ_ANGLE_MODE){
 
 				if(count_landing == COUNT_BEFORE_CONTROL){
 
@@ -154,15 +148,15 @@ static THD_FUNCTION(Gravity, arg){
 					if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP
 							&& (quadrant == 1 || quadrant == 4)){
 
-						set_function_mode(NORMAL_FUNCTION_MODE);
+						set_function_mode(NORMAL_MODE);
 
 					}else if(angle_from_horizontal < ANGLE_LANDING_INF){
 
-						set_function_mode(LANDING_FUNCTION_MODE);
+						set_function_mode(LANDING_MODE);
 
 					}else if(angle_from_horizontal > ANGLE_LANDING_SUPP || quadrant == 2 || quadrant == 3){
 
-						set_function_mode(INV_LANDING_FUNCTION_MODE);
+						set_function_mode(INV_LANDING_MODE);
 
 					}
 				}else{

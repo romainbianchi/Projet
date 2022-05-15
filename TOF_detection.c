@@ -1,16 +1,10 @@
 #include <ch.h>
 #include <hal.h>
-#include <stdlib.h>
-#include <math.h>
-#include <chprintf.h>
-#include <leds.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <selector.h>
 
 #include "main.h"
 #include "TOF_detection.h"
-#include "regulator.h"
-#include "gravity_detection.h"
 
 #define GOAL_OBJECT_VALUE 		100 //[mm]
 
@@ -29,8 +23,8 @@ static THD_FUNCTION(TofDetection, arg){
 	while(1){
 
 		if(get_selector() ==  SELECT_START){
-			if(VL53L0X_get_dist_mm() < GOAL_OBJECT_VALUE && get_function_mode() == NORMAL_FUNCTION_MODE){
-				set_function_mode(ROTATION_FUNCTION_MODE);
+			if(VL53L0X_get_dist_mm() < GOAL_OBJECT_VALUE && get_function_mode() == NORMAL_MODE){
+				set_function_mode(ROTATION_MODE);
 			}
 		}
 
