@@ -20,6 +20,7 @@
 #define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f 		//[step/cm]
 #define GAP_WHEEL 									5.3 		//[cm]
 #define	JUMP_VYO 									18.0f 		//[cm/s]
+#define FALL_VYO									0.0f		//[cm/s]
 #define VXO 										6.0f		//[cm/s]
 #define G 											-8.0f		//[cm/s^2]
 #define DT 											0.02f 		//[s]
@@ -33,15 +34,14 @@
 #define INITIAL_SPEED								600 		//[steps/s]
 #define PROX_FACTOR									0.01f
 #define GOAL_PROX_VALUE								1000.00f * PROX_FACTOR
-#define KP 											10.0f
-#define KI											0.2f
+#define KP 											5.0f
+#define KI											0.02f
 #define KD											250.0f
 #define MAX_SUM_ERROR 								300
-#define ERROR_THRESHOLD								2
+#define ERROR_THRESHOLD								0.0
 
 
 static float time_parabola = 0;
-static float vyo = 0;/******* RENDRE CETTE VARIABLE NON GLOBALE *******/
 
 //--------------------------------------- INTERNAL FUNCTIONS -----------------------------------------------------
 
@@ -65,7 +65,7 @@ float calculate_norm_speed(float t, float vyo){
 	return sqrt((G*t)*(G*t)+(2*G*vyo*t)+VXO*VXO+vyo*vyo);
 }
 
-void parabola(void){
+void parabola(float vyo){
 	static float roc = 0;
 	static float speed = 0;
 
@@ -129,9 +129,9 @@ static THD_FUNCTION(PiRegulator, arg) {
     	if(get_selector() == SELECT_START){
 
 //    		//SET PRIORITY
-//    		if(function_mode == PARABOLA_FUNCTION_MODE || function_mode == FALL_FUNCTION_MODE){
+//    		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE){
 //    			chThdSetPriority(NORMALPRIO+2);
-//    		}else if (function_mode == NORMAL_FUNCTION_MODE){
+//    		}else if (get_function_mode() == NORMAL_FUNCTION_MODE){
 //    			chThdSetPriority(NORMALPRIO+1);
 //    		}else {
 //    			chThdSetPriority(NORMALPRIO);
@@ -146,8 +146,7 @@ static THD_FUNCTION(PiRegulator, arg) {
     				break;
 
     			case PARABOLA_FUNCTION_MODE:
-        			vyo = JUMP_VYO;
-        			parabola();
+        			parabola(JUMP_VYO);
         			break;
 
     			case ROTATION_FUNCTION_MODE:
@@ -164,8 +163,7 @@ static THD_FUNCTION(PiRegulator, arg) {
         			break;
 
     			case FALL_FUNCTION_MODE:
-        			vyo = 0;
-        			parabola();
+        			parabola(FALL_VYO);
         			break;
 
     			case END_FUNCTION_MODE:

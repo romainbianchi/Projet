@@ -12,23 +12,17 @@
 #include "regulator.h"
 #include "gravity_detection.h"
 
-#define GOAL_OBJECT_VALUE		80u					// [mm]
-
-static bool object_detected = false;
+#define GOAL_OBJECT_VALUE 		100 //[mm]
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
-static THD_WORKING_AREA(waTofDetection, 256);
+static THD_WORKING_AREA(waTofDetection, 128);
 static THD_FUNCTION(TofDetection, arg){
 
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 
-	uint16_t TOF_value = 0;
-
 	while(1){
-
-		TOF_value = VL53L0X_get_dist_mm();
 
 //		//PRIORITY SET
 //		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == NORMAL_FUNCTION_MODE){
@@ -37,18 +31,11 @@ static THD_FUNCTION(TofDetection, arg){
 //			chThdSetPriority(NORMALPRIO);
 //		}
 
-		//OBJECT DETECTION
-		if(get_function_mode() == NORMAL_FUNCTION_MODE){
-			if(TOF_value < GOAL_OBJECT_VALUE){
-				object_detected = true;
-			}else{
-				object_detected = false;
-			}
-		}
+
 
 		//MODE CONDITIONS
 		if(get_selector() ==  SELECT_START){
-			if(object_detected && get_function_mode() == NORMAL_FUNCTION_MODE){
+			if(VL53L0X_get_dist_mm() < GOAL_OBJECT_VALUE && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(ROTATION_FUNCTION_MODE);
 			}
 		}

@@ -62,6 +62,7 @@ int main(void)
 	VL53L0X_start();
 	chThdSleepMilliseconds(500);
 
+
 	// acc calibration
     chThdSleepMilliseconds(2000);
     calibrate_acc();

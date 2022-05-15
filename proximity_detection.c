@@ -56,7 +56,7 @@ static THD_FUNCTION(ProximityDetection, arg){
 			}
 		}
 
-		chThdSleepMilliseconds(20);
+		chThdSleepMilliseconds(10);
 	}
 
 }

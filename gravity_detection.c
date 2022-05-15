@@ -103,7 +103,7 @@ static THD_FUNCTION(Gravity, arg){
 				}
 			}
 
-    		if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP /*&& (quadrant == 1 || quadrant == 4)*/
+    		if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP && (quadrant == 1 || quadrant == 4)
     		   && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     		}
