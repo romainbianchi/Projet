@@ -16,6 +16,10 @@
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
+
+/* TOF detection thread
+ * Switch between normal mode and rotation mode when an object is detected
+ */
 static THD_WORKING_AREA(waTofDetection, 128);
 static THD_FUNCTION(TofDetection, arg){
 
@@ -24,7 +28,6 @@ static THD_FUNCTION(TofDetection, arg){
 
 	while(1){
 
-		//MODE CONDITIONS
 		if(get_selector() ==  SELECT_START){
 			if(VL53L0X_get_dist_mm() < GOAL_OBJECT_VALUE && get_function_mode() == NORMAL_FUNCTION_MODE){
 				set_function_mode(ROTATION_FUNCTION_MODE);

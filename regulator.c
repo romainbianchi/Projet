@@ -36,7 +36,7 @@
 #define GOAL_PROX_VALUE								1000.00f * PROX_FACTOR
 #define KP 											5.0f
 #define KI											0.02f
-#define KD											250.0f
+#define KD											200.0f
 #define MAX_SUM_ERROR 								300
 #define ERROR_THRESHOLD								0.0
 
@@ -128,6 +128,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	if(get_selector() == SELECT_START){
 
+    		// motors according to actual mode
     		switch(get_function_mode()){
 
     			case NORMAL_FUNCTION_MODE:
@@ -153,6 +154,10 @@ static THD_FUNCTION(PiRegulator, arg) {
         			rotation(ANTI_CLOCKWISE);
         			break;
 
+    			case INV_LANDING_FUNCTION_MODE:
+    				time_parabola = 0;
+    				rotation(CLOCKWISE);
+
     			case FALL_FUNCTION_MODE:
         			parabola(FALL_VYO);
         			break;
@@ -172,6 +177,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 }
 
 //--------------------------------------- PUBLIC FUNCTIONS -----------------------------------------------------
+
 
 void start_regulator(void){
 	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
