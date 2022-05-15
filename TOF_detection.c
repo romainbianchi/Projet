@@ -24,15 +24,6 @@ static THD_FUNCTION(TofDetection, arg){
 
 	while(1){
 
-//		//PRIORITY SET
-//		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == NORMAL_FUNCTION_MODE){
-//			chThdSetPriority(NORMALPRIO+1);
-//		}else{
-//			chThdSetPriority(NORMALPRIO);
-//		}
-
-
-
 		//MODE CONDITIONS
 		if(get_selector() ==  SELECT_START){
 			if(VL53L0X_get_dist_mm() < GOAL_OBJECT_VALUE && get_function_mode() == NORMAL_FUNCTION_MODE){

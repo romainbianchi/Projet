@@ -32,14 +32,6 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 	while(1){
 
-//		//PRIORITY SET
-//		if(get_function_mode() == NORMAL_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE){
-//			chThdSetPriority(NORMALPRIO+1);
-//		}else{
-//			chThdSetPriority(NORMALPRIO);
-//		}
-
-		//MODE CONDITIONS
 		if(get_selector() == SELECT_START){
 
 			if(get_calibrated_prox(1) < 10 && get_function_mode() == NORMAL_FUNCTION_MODE){
@@ -63,6 +55,7 @@ static THD_FUNCTION(ProximityDetection, arg){
 
 //----------------------------------------------------- EXTERNAL FUNCTIONS ------------------------------------------------------------------------------
 
+/* start proximity detection thread */
 void start_proximity_detection(void){
 	chThdCreateStatic(waProximityDetection, sizeof(waProximityDetection), NORMALPRIO, ProximityDetection, NULL);
 }

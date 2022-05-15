@@ -10,15 +10,16 @@ extern "C" {
 #include "parameter/parameter.h"
 
 //constants for the differents parts of the project
-#define NORMAL_FUNCTION_MODE			0
-#define PARABOLA_FUNCTION_MODE			1
-#define ROTATION_FUNCTION_MODE			2
-#define INV_ROTATION_FUNCTION_MODE		3
-#define LANDING_FUNCTION_MODE			4
-#define FALL_FUNCTION_MODE				5
-#define CONTROL_ANGLE_FUNCTION_MODE		6
-#define END_FUNCTION_MODE				7
-#define SELECT_START					8
+#define NORMAL_FUNCTION_MODE					0
+#define PARABOLA_FUNCTION_MODE					1
+#define ROTATION_FUNCTION_MODE					2
+#define INV_ROTATION_FUNCTION_MODE				3
+#define LANDING_FUNCTION_MODE					4
+#define FALL_FUNCTION_MODE						5
+#define CONTROL__PARA ANGLE_FUNCTION_MODE		6
+#define END_FUNCTION_MODE						7
+
+#define SELECT_START							8
 
 uint8_t get_function_mode(void);
 void set_function_mode(uint8_t mode);

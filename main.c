@@ -37,7 +37,7 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
-static uint8_t function_mode = NORMAL_FUNCTION_MODE;
+static uint8_t function_mode = NORMAL_FUNCTION_MODE; //variable used to set the different modes
 
 int main(void)
 {
@@ -51,35 +51,35 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-    // motors initialization
+    /* motors initialization */
 	motors_init();
 
-	// proximity sensor initialization
+	/* proximity sensor initialization */
 	proximity_start();
 	calibrate_ir();
 
-	// TOF start
+	/* TOF start */
 	VL53L0X_start();
 	chThdSleepMilliseconds(500);
 
 
-	// acc calibration
-    chThdSleepMilliseconds(2000);
+	/* acc calibration */
+    chThdSleepMilliseconds(1000);
     calibrate_acc();
 
-	//start proximity detection
+	/* start proximity detection */
 	start_proximity_detection();
 
-	// start TOF detection
+	/* start TOF detection */
 	start_tof_detection();
 
-	// start gravity
+	/* start gravity detection */
 	start_gravity();
 
-	//start thread movement
+	/* start thread movement */
 	start_regulator();
 
-	//end of initialization
+	/* end of initialization signal */
 	set_body_led(1);
 	chThdSleepMilliseconds(200);
 	set_body_led(0);
@@ -90,10 +90,12 @@ int main(void)
     }
 }
 
+/* return the actual mode */
 uint8_t get_function_mode(void){
 	return function_mode;
 }
 
+/* set the mode */
 void set_function_mode(uint8_t mode){
 	function_mode = mode;
 }

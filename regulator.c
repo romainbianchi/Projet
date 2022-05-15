@@ -128,15 +128,6 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     	if(get_selector() == SELECT_START){
 
-//    		//SET PRIORITY
-//    		if(get_function_mode() == PARABOLA_FUNCTION_MODE || get_function_mode() == FALL_FUNCTION_MODE){
-//    			chThdSetPriority(NORMALPRIO+2);
-//    		}else if (get_function_mode() == NORMAL_FUNCTION_MODE){
-//    			chThdSetPriority(NORMALPRIO+1);
-//    		}else {
-//    			chThdSetPriority(NORMALPRIO);
-//    		}
-
     		switch(get_function_mode()){
 
     			case NORMAL_FUNCTION_MODE:
