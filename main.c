@@ -16,7 +16,7 @@
 #include "main.h"
 #include "proximity_detection.h"
 #include "TOF_detection.h"
-#include "regulator.h"
+#include "motors_control.h"
 #include "gravity_detection.h"
 
 messagebus_t bus;
@@ -35,7 +35,7 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
-static uint8_t function_mode = NORMAL_MODE; //variable used to set the different modes
+static uint8_t function_mode = NORMAL_MODE; //variable used for the different modes
 
 int main(void)
 {

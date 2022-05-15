@@ -12,7 +12,7 @@ GLOBAL_PATH = ../../lib/e-puck2_main-processor
 CSRC += ./main.c\
 			./proximity_detection.c\
 			./TOF_detection.c\
-			./regulator.c\
+			./motors_control.c\
 			./gravity_detection.c\
 
 #Header folders to include
