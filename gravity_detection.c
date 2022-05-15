@@ -81,8 +81,9 @@ static THD_FUNCTION(Gravity, arg){
 //    		}
 
     		//SPECIFIC ANGLES DETECTION
-			if(get_angle() > ANGLE_PARABOLA_INF && get_angle() < ANGLE_PARABOLA_SUPP && get_quadrant() == 1 && (get_function_mode() == ROTATION_FUNCTION_MODE || get_function_mode() == INV_ROTATION_FUNCTION_MODE)){
-				stop_rotation();
+			if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && quadrant == 1
+					&& (get_function_mode() == ROTATION_FUNCTION_MODE || get_function_mode() == INV_ROTATION_FUNCTION_MODE)){
+				stop_motors();
 				set_function_mode(CONTROL_ANGLE_FUNCTION_MODE);
 			}
 
@@ -90,7 +91,7 @@ static THD_FUNCTION(Gravity, arg){
 				if(count == 10){
 					count = 0;
 					determine_angle(imu_values);
-					if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && get_quadrant() == 1){
+					if(angle_from_horizontal > ANGLE_PARABOLA_INF && angle_from_horizontal < ANGLE_PARABOLA_SUPP && quadrant == 1){
 						set_function_mode(PARABOLA_FUNCTION_MODE);
 					}else if(angle_from_horizontal < ANGLE_PARABOLA_SUPP){
 						set_function_mode(ROTATION_FUNCTION_MODE);
@@ -102,7 +103,7 @@ static THD_FUNCTION(Gravity, arg){
 				}
 			}
 
-    		if(get_angle() > ANGLE_LANDING_INF && get_angle() < ANGLE_LANDING_SUPP /*&& (quadrant == 1 || quadrant == 4)*/
+    		if(angle_from_horizontal > ANGLE_LANDING_INF && angle_from_horizontal < ANGLE_LANDING_SUPP /*&& (quadrant == 1 || quadrant == 4)*/
     		   && get_function_mode() == LANDING_FUNCTION_MODE){
     			set_function_mode(NORMAL_FUNCTION_MODE);
     		}
@@ -117,12 +118,4 @@ static THD_FUNCTION(Gravity, arg){
 
 void start_gravity(void){
 	chThdCreateStatic(waGravity, sizeof(waGravity), NORMALPRIO+1, Gravity, NULL);
-}
-
-float get_angle(void){
-	return angle_from_horizontal;
-}
-
-uint8_t get_quadrant(void){
-	return quadrant;
 }

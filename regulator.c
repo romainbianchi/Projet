@@ -16,16 +16,30 @@
 #include "TOF_detection.h"
 #include "gravity_detection.h"
 
-#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f //[step/cm]
-#define GAP_WHEEL 									5.3 //[cm]
-#define	JUMP_VYO 									18.0f //[cm/s]
-#define VXO 										6.0f
-#define G 											-8.0f //[cm/s^2]
-#define DT 											0.02f  // [s]
+//PARABOLA CONSTANTS
+#define	CONSTANT_CONVERSION_SPEED_CM_TO_STEP		76.92f 		//[step/cm]
+#define GAP_WHEEL 									5.3 		//[cm]
+#define	JUMP_VYO 									18.0f 		//[cm/s]
+#define VXO 										6.0f		//[cm/s]
+#define G 											-8.0f		//[cm/s^2]
+#define DT 											0.02f 		//[s]
+
+//ROTATIION CONSTANTS
+#define ROTATION_SPEED								180			//[steps/s]
 #define CLOCKWISE									0
 #define ANTI_CLOCKWISE								1
 
-static uint8_t function_mode = NORMAL_FUNCTION_MODE;
+//REGULATOR CONSTANTS
+#define INITIAL_SPEED								600 		//[steps/s]
+#define PROX_FACTOR									0.01f
+#define GOAL_PROX_VALUE								1000.00f * PROX_FACTOR
+#define KP 											10.0f
+#define KI											0.2f
+#define KD											250.0f
+#define MAX_SUM_ERROR 								300
+#define ERROR_THRESHOLD								2
+
+
 static float time_parabola = 0;
 static float vyo = 0;/******* RENDRE CETTE VARIABLE NON GLOBALE *******/
 
@@ -123,39 +137,45 @@ static THD_FUNCTION(PiRegulator, arg) {
 //    			chThdSetPriority(NORMALPRIO);
 //    		}
 
-    		if(function_mode == ROTATION_FUNCTION_MODE){
-    			rotation(ANTI_CLOCKWISE);
-    		}
-    		if(function_mode == INV_ROTATION_FUNCTION_MODE){
-    			rotation(CLOCKWISE);
-    		}
-    		if(function_mode == PARABOLA_FUNCTION_MODE){
-    			vyo = JUMP_VYO;
-    			parabola();
-			}
-    		if(function_mode == FALL_FUNCTION_MODE){
-    			vyo = 0;
-    			parabola();
-    		}
-    		if(function_mode == LANDING_FUNCTION_MODE){
-    			time_parabola = 0;
-    			rotation(ANTI_CLOCKWISE);
-    		}
-    		if(function_mode == NORMAL_FUNCTION_MODE){
-				prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
-				right_motor_set_speed(INITIAL_SPEED + prox);
-				left_motor_set_speed(INITIAL_SPEED - prox);
-    		}
+    		switch(get_function_mode()){
 
-    		if(function_mode == END_FUNCTION_MODE){
-    			left_motor_set_speed(0);
-    			right_motor_set_speed(0);
-    			set_body_led(1);
+    			case NORMAL_FUNCTION_MODE:
+    				prox = pi_regulator(get_calibrated_prox(2), GOAL_PROX_VALUE);
+    				right_motor_set_speed(INITIAL_SPEED + prox);
+    				left_motor_set_speed(INITIAL_SPEED - prox);
+    				break;
+
+    			case PARABOLA_FUNCTION_MODE:
+        			vyo = JUMP_VYO;
+        			parabola();
+        			break;
+
+    			case ROTATION_FUNCTION_MODE:
+        			rotation(ANTI_CLOCKWISE);
+        			break;
+
+    			case INV_ROTATION_FUNCTION_MODE:
+        			rotation(CLOCKWISE);
+        			break;
+
+    			case LANDING_FUNCTION_MODE:
+        			time_parabola = 0;
+        			rotation(ANTI_CLOCKWISE);
+        			break;
+
+    			case FALL_FUNCTION_MODE:
+        			vyo = 0;
+        			parabola();
+        			break;
+
+    			case END_FUNCTION_MODE:
+    				stop_motors();
+    				set_body_led(1);
+    				break;
     		}
 
     	}else{
-    		left_motor_set_speed(0);
-    		right_motor_set_speed(0);
+    		stop_motors();
     	}
 
     	chThdSleepUntilWindowed(time, time + MS2ST(20));
@@ -168,14 +188,6 @@ void start_regulator(void){
 	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
 }
 
-void set_function_mode(uint8_t mode){
-	function_mode = mode;
-}
-
-uint8_t get_function_mode(void){
-	return function_mode;
-}
-
 void rotation(uint8_t direction){
 	if(direction == ANTI_CLOCKWISE){
 		left_motor_set_speed(-ROTATION_SPEED);
@@ -186,7 +198,7 @@ void rotation(uint8_t direction){
 	}
 }
 
-void stop_rotation(void){
+void stop_motors(void){
 	left_motor_set_speed(0);
 	right_motor_set_speed(0);
 }

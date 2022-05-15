@@ -12,6 +12,8 @@
 #include "regulator.h"
 #include "gravity_detection.h"
 
+#define GOAL_OBJECT_VALUE		80u					// [mm]
+
 static bool object_detected = false;
 
 //----------------------------------------------------- INTERNAL FUNCTIONS ------------------------------------------------------------------------------

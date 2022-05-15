@@ -5,9 +5,7 @@
 #include <hal.h>
 
 void start_regulator(void);
-void set_function_mode(uint8_t mode);
-uint8_t get_function_mode(void);
 void rotation(uint8_t direction);
-void stop_rotation(void);
+void stop_motors(void);
 
 #endif /* REGULATOR_H */

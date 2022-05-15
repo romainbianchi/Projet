@@ -3,31 +3,22 @@
 #include <string.h>
 #include <math.h>
 
-#include "ch.h"
-#include "hal.h"
+#include <ch.h>
+#include <hal.h>
 #include "memory_protection.h"
 #include <usbcfg.h>
-#include <main.h>
-#include <motors.h>
 #include <leds.h>
+#include <motors.h>
 #include <sensors/proximity.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <msgbus/messagebus.h>
 #include <sensors/imu.h>
-#include <chprintf.h>
+#include <selector.h>
 
+#include "main.h"
 #include "proximity_detection.h"
 #include "TOF_detection.h"
 #include "regulator.h"
-
-#include <ch.h>
-#include <hal.h>
-#include <math.h>
-#include <chprintf.h>
-
-#include <i2c_bus.h>
-
-#include <sensors/imu.h>
 #include "gravity_detection.h"
 
 messagebus_t bus;
@@ -46,13 +37,14 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
+static uint8_t function_mode = NORMAL_FUNCTION_MODE;
+
 int main(void)
 {
     halInit();
     chSysInit();
     mpu_init();
     serial_start();
-    i2c_start();
     imu_start();
 
 
@@ -95,6 +87,14 @@ int main(void)
     while (1) {
 
     }
+}
+
+uint8_t get_function_mode(void){
+	return function_mode;
+}
+
+void set_function_mode(uint8_t mode){
+	function_mode = mode;
 }
 
 #define STACK_CHK_GUARD 0xe2dee396

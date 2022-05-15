@@ -18,30 +18,10 @@ extern "C" {
 #define FALL_FUNCTION_MODE				5
 #define CONTROL_ANGLE_FUNCTION_MODE		6
 #define END_FUNCTION_MODE				7
+#define SELECT_START					8
 
-#define PI						3.1415926536f
-#define WHEEL_DISTANCE      	5.35f  					// [cm]
-#define WHEEL_PERIMETER			13						// [cm]
-#define PERIMETER_EPUCK			(PI * WHEEL_DISTANCE)
-#define NB_STEP_ONE_TURN		1000
-#define INITIAL_SPEED			600 					// [steps]
-#define PROX_FACTOR				0.01f
-#define GOAL_PROX_VALUE			1000.00f * PROX_FACTOR
-#define GOAL_OBJECT_VALUE		80u					// [mm]
-
-#define KP 						10.0f
-#define KI						0.2f
-#define KD						250.0f
-#define MAX_SUM_ERROR 			300
-#define ERROR_THRESHOLD			2
-
-#define SELECT_START			8
-#define DEG_PER_STEP			0.141f
-#define ANGLE_PARABOLA			63.3f					// [deg]
-#define ANGLE_HORIZONTAL		0
-#define ANGLE_THRESHOLD			1						// [deg]
-#define ROTATION_SPEED			180
-
+uint8_t get_function_mode(void);
+void set_function_mode(uint8_t mode);
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
